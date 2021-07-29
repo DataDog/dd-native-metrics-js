@@ -1,0 +1,18 @@
+Component,Origin,License,Copyright
+require,nan,MIT,Copyright 2018 NAN contributors
+require,node-gyp-build,MIT,Copyright 2017 Mathias Buus
+dev,chai,MIT,Copyright 2017 Chai.js Assertion Library
+dev,checksum,MIT,Copyright Daniel D. Shaw
+dev,eslint,MIT,Copyright JS Foundation and other contributors https://js.foundation
+dev,eslint-config-standard,MIT,Copyright Feross Aboukhadijeh
+dev,eslint-plugin-import,MIT,Copyright 2015 Ben Mosher
+dev,eslint-plugin-node,MIT,Copyright 2015 Toru Nagashima
+dev,eslint-plugin-promise,ISC,jden and other contributors
+dev,eslint-plugin-standard,MIT,Copyright 2015 Jamund Ferguson
+dev,glob,ISC,Copyright Isaac Z. Schlueter and Contributors
+dev,mkdirp,MIT,Copyright 2010 James Halliday
+dev,mocha,MIT,Copyright 2011-2018 JS Foundation and contributors https://js.foundation
+dev,rimraf,ISC,Copyright Isaac Z. Schlueter and Contributors
+dev,semver,ISC,Copyright Isaac Z. Schlueter and Contributors
+dev,tar,ISC,Copyright Isaac Z. Schlueter and Contributors
+file,TDigest.h,Apache license 2.0,Copyright Derrick R. Burns
