@@ -1,0 +1,12 @@
+*
+!src/**/*
+!prebuilds/**/*
+!scripts/**/*
+!CONTRIBUTING.md
+!LICENSE
+!LICENSE-3rdparty.csv
+!README.md
+!binding.gyp
+!index.d.ts
+!index.js
+!package.json
