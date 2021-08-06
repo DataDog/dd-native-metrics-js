@@ -29,6 +29,7 @@
     "node-gyp-build": "^3.9.0"
   },
   "devDependencies": {
+    "axios": "^0.21.1",
     "chai": "^4.3.4",
     "checksum": "^0.1.1",
     "eslint": "^7.31.0",

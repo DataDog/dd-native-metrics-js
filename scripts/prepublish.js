@@ -54,7 +54,7 @@ getPipeline()
   })
 
 function getPipeline () {
-  return fetch(`project/github/DataDog/dd-trace-js/pipeline?branch=${branch}`)
+  return fetch(`project/github/DataDog/dd-native-metrics-js/pipeline?branch=${branch}`)
     .then(response => {
       const pipeline = response.data.items
         .filter(item => item.trigger.type !== 'schedule')
@@ -73,7 +73,7 @@ function getWorkflow (pipeline) {
     .then(response => {
       const workflows = response.data.items
         .sort((a, b) => (a.stopped_at < b.stopped_at) ? 1 : -1)
-      const workflow = workflows.find(workflow => workflow.name === 'prebuild')
+      const workflow = workflows.find(workflow => workflow.name === 'build')
 
       if (!workflow) {
         throw new Error(`Unable to find CircleCI workflow for pipeline ${pipeline.id}.`)
