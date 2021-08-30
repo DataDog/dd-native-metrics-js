@@ -27,7 +27,9 @@ commands:
 
 prebuild-linux-base: &prebuild-linux-base
   docker:
-    - image: node:10.0.0 # glibc needs to be old enough for older distros
+    # from node:10.0.0 on 2021-08-30
+    # glibc needs to be old enough for older distros
+    - image: node@sha256:4013aa6c297808defd01234fce4a42e1ca0518a5bd0260752a86a46542b38206
   working_directory: ~/dd-native-metrics-js
   resource_class: small
   steps:
@@ -106,7 +108,8 @@ jobs:
   linux-x64-16:
     <<: *prebuild-linux-base
     docker:
-      - image: node:12.0.0
+      # from node:12.0.0 on 2021-08-30
+      - image: node@sha256:c88ef4f7ca8d52ed50366d821e104d029f43e8686120a29541ce0371f333453f
     environment:
       - ARCH=x64
       - NODE_VERSIONS=15 - 16
@@ -153,7 +156,8 @@ jobs:
 
   alpine-x64: &alpine-base
     docker:
-      - image: node:alpine
+      # from node:alpine on 2021-08-30
+      - image: node@sha256:1ee1478ef46a53fc0584729999a0570cf2fb174fbfe0370edbf09680b2378b56
     working_directory: ~/dd-native-metrics-js
     resource_class: small
     steps:
@@ -172,7 +176,8 @@ jobs:
   alpine-ia32:
     <<: *alpine-base
     docker:
-      - image: i386/node:alpine
+      # from i386/node:alpine on 2021-08-30
+      - image: i386/node@sha256:c81d659f51a11aea6d73598fce064cf087b21caf9046fbf34530d9f1d43c8ec8
 
   # Prebuilds (linux ia32)
 
