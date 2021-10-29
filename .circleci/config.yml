@@ -112,7 +112,7 @@ jobs:
       - image: node@sha256:c88ef4f7ca8d52ed50366d821e104d029f43e8686120a29541ce0371f333453f
     environment:
       - ARCH=x64
-      - NODE_VERSIONS=15 - 16
+      - NODE_VERSIONS=15 - 17
 
   linux-x64-12:
     <<: *prebuild-linux-base
@@ -121,6 +121,11 @@ jobs:
       - NODE_VERSIONS=12 - 14
 
   ## Tests
+
+  linux-x64-latest-test:
+    <<: *test-prebuild-linux-base
+    docker:
+      - image: node
 
   linux-x64-16-test:
     <<: *test-prebuild-linux-base
@@ -136,6 +141,11 @@ jobs:
     <<: *test-prebuild-linux-base
     docker:
       - image: node:12
+
+  alpine-x64-latest-test:
+    <<: *test-prebuild-linux-base
+    docker:
+      - image: node:alpine
 
   alpine-x64-16-test:
     <<: *test-prebuild-linux-base
@@ -205,7 +215,7 @@ jobs:
     <<: *prebuild-darwin-base
     environment:
       - ARCH=ia32,x64
-      - NODE_VERSIONS=12 - 16
+      - NODE_VERSIONS=12 - 17
 
   # Prebuilds (win32)
 
@@ -213,7 +223,7 @@ jobs:
     <<: *prebuild-win32-base
     environment:
       - ARCH=ia32,x64
-      - NODE_VERSIONS=12 - 16
+      - NODE_VERSIONS=12 - 17
 
   # Prebuild Artifacts
 
@@ -241,6 +251,9 @@ workflows:
       # Linux x64
       - linux-x64-16
       - linux-x64-12
+      - linux-x64-latest-test:
+          requires:
+            - linux-x64-16
       - linux-x64-16-test:
           requires:
             - linux-x64-16
@@ -250,6 +263,9 @@ workflows:
       - linux-x64-12-test:
           requires:
             - linux-x64-12
+      - alpine-x64-latest-test:
+          requires:
+            - linux-x64-16
       - alpine-x64-16-test:
           requires:
             - linux-x64-16
@@ -273,13 +289,16 @@ workflows:
       - windows
       - prebuilds:
           requires:
+            - linux-x64-latest-test
             - linux-x64-16-test
             - linux-x64-14-test
             - linux-x64-12-test
             - linux-ia32-13-test
             - linux-ia32-12-test
-            - alpine-x64
-            - alpine-ia32
+            - alpine-x64-latest-test
+            - alpine-x64-16-test
+            - alpine-x64-14-test
+            - alpine-x64-12-test
             - macos
             - windows
   nightly:
