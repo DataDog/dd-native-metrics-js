@@ -70,7 +70,7 @@ test-prebuild-linux-base: &test-prebuild-linux-base
 
 prebuild-darwin-base: &prebuild-darwin-base
   macos:
-    xcode: "12.2.0"
+    xcode: "12.5.1"
   working_directory: ~/dd-native-metrics-js
   steps:
     - checkout-and-yarn-install
