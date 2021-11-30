@@ -68,14 +68,6 @@ test-prebuild-linux-base: &test-prebuild-linux-base
         name: Unit tests
         command: yarn test
 
-prebuild-darwin-base: &prebuild-darwin-base
-  working_directory: ~/dd-native-metrics-js
-  steps:
-    - checkout-and-yarn-install
-    - *yarn-prebuild
-    - *yarn-test
-    - *persist-prebuilds
-
 prebuild-win32-base: &prebuild-win32-base
   executor:
     name: win/default
@@ -210,7 +202,12 @@ jobs:
   # Prebuilds (darwin)
 
   macos-intel:
-    <<: *prebuild-darwin-base
+    working_directory: ~/dd-native-metrics-js
+    steps:
+      - checkout-and-yarn-install
+      - *yarn-prebuild
+      - *yarn-test
+      - *persist-prebuilds
     macos:
       xcode: "12.2.0"
     environment:
@@ -218,7 +215,12 @@ jobs:
       - NODE_VERSIONS=12 - 17
 
   macos-apple:
-    <<: *prebuild-darwin-base
+    working_directory: ~/dd-native-metrics-js
+    steps:
+      - checkout-and-yarn-install
+      - *yarn-prebuild
+      # TODO: run tests when CircleCI adds Apple silicon executors
+      - *persist-prebuilds
     macos:
       xcode: "12.5.1"
     environment:
