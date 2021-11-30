@@ -1,6 +1,8 @@
 'use strict'
 
 const { expect } = require('chai')
+const path = require('path')
+const { Worker } = require('worker_threads')
 const nativeMetrics = require('..')
 
 describe('metrics', () => {
@@ -101,6 +103,18 @@ describe('metrics', () => {
       expect(stats.eventLoop.sum).to.be.gte(100 * 1e6)
 
       done()
+    })
+  })
+
+  it('should support worker threads', done => {
+    const worker = new Worker(path.join(__dirname, 'worker.js'))
+
+    worker.once('exit', code => {
+      if (code) {
+        done(new Error('Worker exited with non-zero code.'))
+      } else {
+        done()
+      }
     })
   })
 })

@@ -6,6 +6,8 @@
 #include "Collector.hpp"
 #include "Histogram.hpp"
 
+// TODO: use UV_METRICS_IDLE_TIME
+
 namespace datadog {
   // http://docs.libuv.org/en/v1.x/design.html#the-i-o-loop
   class EventLoop : public Collector {
@@ -33,8 +35,10 @@ namespace datadog {
   };
 
   EventLoop::EventLoop() {
-    uv_check_init(uv_default_loop(), &check_handle_);
-    uv_prepare_init(uv_default_loop(), &prepare_handle_);
+    uv_loop_t* loop = Nan::GetCurrentEventLoop();
+
+    uv_check_init(loop, &check_handle_);
+    uv_prepare_init(loop, &prepare_handle_);
     uv_unref(reinterpret_cast<uv_handle_t*>(&check_handle_));
     uv_unref(reinterpret_cast<uv_handle_t*>(&prepare_handle_));
 
@@ -42,11 +46,13 @@ namespace datadog {
     prepare_handle_.data = (void*)this;
 
     check_time_ = uv_hrtime();
+    prepare_time_ = check_time_;
+    timeout_ = 0;
   }
 
   EventLoop::~EventLoop() {
-    uv_check_stop(&check_handle_);
-    uv_prepare_stop(&prepare_handle_);
+    uv_close(reinterpret_cast<uv_handle_t*>(&check_handle_), nullptr);
+    uv_close(reinterpret_cast<uv_handle_t*>(&prepare_handle_), nullptr);
   }
 
   void EventLoop::check_cb (uv_check_t* handle) {
@@ -66,10 +72,11 @@ namespace datadog {
   }
 
   void EventLoop::prepare_cb (uv_prepare_t* handle) {
+    uv_loop_t* loop = Nan::GetCurrentEventLoop();
     EventLoop* self = (EventLoop*)handle->data;
 
     self->prepare_time_ = uv_hrtime();
-    self->timeout_ = uv_backend_timeout(uv_default_loop());
+    self->timeout_ = uv_backend_timeout(loop);
   }
 
   void EventLoop::enable() {
