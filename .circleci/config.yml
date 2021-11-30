@@ -214,7 +214,7 @@ jobs:
   macos:
     <<: *prebuild-darwin-base
     environment:
-      - ARCH=ia32,x64
+      - ARCH=ia32,x64,arm64
       - NODE_VERSIONS=12 - 17
 
   # Prebuilds (win32)

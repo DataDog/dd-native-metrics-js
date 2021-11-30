@@ -40,6 +40,7 @@ function prebuildify () {
         'node-gyp rebuild',
       `--target=${target.version}`,
       `--target_arch=${arch}`,
+      `--arch=${arch}`,
       `--devdir=${cache}`,
       '--release',
       '--jobs=max',
