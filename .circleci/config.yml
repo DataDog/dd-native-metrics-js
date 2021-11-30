@@ -69,8 +69,6 @@ test-prebuild-linux-base: &test-prebuild-linux-base
         command: yarn test
 
 prebuild-darwin-base: &prebuild-darwin-base
-  macos:
-    xcode: "12.5.1"
   working_directory: ~/dd-native-metrics-js
   steps:
     - checkout-and-yarn-install
@@ -211,10 +209,20 @@ jobs:
 
   # Prebuilds (darwin)
 
-  macos:
+  macos-intel:
     <<: *prebuild-darwin-base
+    macos:
+      xcode: "12.2.0"
     environment:
-      - ARCH=ia32,x64,arm64
+      - ARCH=ia32,x64
+      - NODE_VERSIONS=12 - 17
+
+  macos-apple:
+    <<: *prebuild-darwin-base
+    macos:
+      xcode: "12.5.1"
+    environment:
+      - ARCH=arm64
       - NODE_VERSIONS=12 - 17
 
   # Prebuilds (win32)
@@ -285,7 +293,8 @@ workflows:
             - linux-ia32-12
       - alpine-x64
       - alpine-ia32
-      - macos
+      - macos-intel
+      - macos-apple
       - windows
       - prebuilds:
           requires:
@@ -299,7 +308,8 @@ workflows:
             - alpine-x64-16-test
             - alpine-x64-14-test
             - alpine-x64-12-test
-            - macos
+            - macos-intel
+            - macos-apple
             - windows
   nightly:
     triggers:
