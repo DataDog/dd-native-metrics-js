@@ -4,7 +4,6 @@
 #include <uv.h>
 
 #include "Collector.hpp"
-#include "EventLoop.hpp"
 #include "GarbageCollection.hpp"
 #include "Heap.hpp"
 #include "Histogram.hpp"
