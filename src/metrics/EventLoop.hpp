@@ -27,7 +27,7 @@ namespace datadog {
       Process process;
       std::function<void()> after_close;
 
-      static void delete_instance(void* arg, void (*cb)(void*), void* cbarg);
+      static void delete_instance(void* arg);
 
       void enable();
       void disable();
@@ -126,11 +126,10 @@ namespace datadog {
     uv_close(reinterpret_cast<uv_handle_t*>(&prepare_handle_), &EventLoop::close_cb);
   }
 
-  void EventLoop::delete_instance(void* arg, void (*cb)(void*), void* cbarg) {
+  void EventLoop::delete_instance(void* arg) {
     EventLoop* data = (static_cast<EventLoop*>(arg));
 
     data->close([=]() -> void {
-      cb(cbarg);
       delete data;
     });
   }
