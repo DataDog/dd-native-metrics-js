@@ -10,6 +10,7 @@
 #include "Histogram.hpp"
 #include "Process.hpp"
 
+// TODO: split AddonData from EventLoop
 // TODO: use UV_METRICS_IDLE_TIME
 
 namespace datadog {
