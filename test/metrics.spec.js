@@ -117,4 +117,27 @@ describe('metrics', () => {
       }
     })
   })
+
+  it('should be stable in worker threads', done => {
+    let exited = 0
+
+    let callback = code => {
+      exited++
+
+      if (code !== 0) {
+        done(new Error('Worker exited with non-zero code.'))
+        callback = () => {}
+      } else if (exited === 1) {
+        done()
+      }
+    }
+
+    for (let i = 0; i < 1; i++) {
+      const worker = new Worker(path.join(__dirname, 'worker.js'))
+
+      worker.once('exit', code => callback(code))
+    }
+  })
+
+  // TODO: test that `stop` is not needed when worker thread exits
 })

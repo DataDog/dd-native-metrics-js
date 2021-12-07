@@ -17,13 +17,18 @@ namespace datadog {
       EventLoop(const EventLoop&) = delete;
       void operator=(const EventLoop&) = delete;
 
+      std::function<void()> after_close;
+
       void enable();
       void disable();
       void inject(Object carrier);
+      void close(const std::function<void()>& cb);
     protected:
       static void check_cb (uv_check_t* handle);
       static void prepare_cb (uv_prepare_t* handle);
+      static void close_cb (uv_handle_t* handle);
     private:
+      int handle_count_;
       uv_check_t check_handle_;
       uv_prepare_t prepare_handle_;
       uint64_t check_time_;
@@ -42,17 +47,13 @@ namespace datadog {
     uv_unref(reinterpret_cast<uv_handle_t*>(&check_handle_));
     uv_unref(reinterpret_cast<uv_handle_t*>(&prepare_handle_));
 
+    handle_count_ = 2;
     check_handle_.data = (void*)this;
     prepare_handle_.data = (void*)this;
 
     check_time_ = uv_hrtime();
     prepare_time_ = check_time_;
     timeout_ = 0;
-  }
-
-  EventLoop::~EventLoop() {
-    uv_close(reinterpret_cast<uv_handle_t*>(&check_handle_), nullptr);
-    uv_close(reinterpret_cast<uv_handle_t*>(&prepare_handle_), nullptr);
   }
 
   void EventLoop::check_cb (uv_check_t* handle) {
@@ -79,6 +80,16 @@ namespace datadog {
     self->timeout_ = uv_backend_timeout(loop);
   }
 
+  void EventLoop::close_cb (uv_handle_t* handle) {
+    EventLoop* self = (EventLoop*)handle->data;
+
+    --self->handle_count_;
+
+    if (self->handle_count_ == 0) {
+      self->after_close();
+    }
+  }
+
   void EventLoop::enable() {
     uv_check_start(&check_handle_, &EventLoop::check_cb);
     uv_prepare_start(&prepare_handle_, &EventLoop::prepare_cb);
@@ -93,5 +104,12 @@ namespace datadog {
   void EventLoop::inject(Object carrier) {
     carrier.set("eventLoop", histogram_);
     histogram_.reset();
+  }
+
+  void EventLoop::close(const std::function<void()>& cb) {
+    after_close = cb;
+
+    uv_close(reinterpret_cast<uv_handle_t*>(&check_handle_), &EventLoop::close_cb);
+    uv_close(reinterpret_cast<uv_handle_t*>(&prepare_handle_), &EventLoop::close_cb);
   }
 }

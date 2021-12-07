@@ -12,15 +12,19 @@ namespace datadog {
       Process process;
 
       explicit AddonData(v8::Isolate* isolate);
-      static void DeleteInstance(void* data);
+      static void delete_instance(void* arg, void (*cb)(void*), void* cbarg);
   };
 
   AddonData::AddonData(v8::Isolate* isolate) {
-    node::AddEnvironmentCleanupHook(isolate, DeleteInstance, this);
+    node::AddEnvironmentCleanupHook(isolate, delete_instance, this);
   }
 
-  void AddonData::DeleteInstance(void* data) {
-    (static_cast<AddonData*>(data))->eventLoop.disable();
-    delete static_cast<AddonData*>(data);
+  void AddonData::delete_instance(void* arg, void (*cb)(void*), void* cbarg) {
+    AddonData* data = (static_cast<AddonData*>(arg));
+
+    data->eventLoop.close([=]() -> void {
+      delete data;
+      cb(cbarg);
+    });
   }
 }
