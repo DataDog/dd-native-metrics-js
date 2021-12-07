@@ -127,12 +127,12 @@ describe('metrics', () => {
       if (code !== 0) {
         done(new Error('Worker exited with non-zero code.'))
         callback = () => {}
-      } else if (exited === 1) {
+      } else if (exited === 100) {
         done()
       }
     }
 
-    for (let i = 0; i < 1; i++) {
+    for (let i = 0; i < 100; i++) {
       const worker = new Worker(path.join(__dirname, 'worker.js'))
 
       worker.once('exit', code => callback(code))

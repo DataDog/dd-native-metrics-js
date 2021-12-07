@@ -4,7 +4,11 @@
 #include <uv.h>
 
 #include "Collector.hpp"
+#include "EventLoop.hpp"
+#include "GarbageCollection.hpp"
+#include "Heap.hpp"
 #include "Histogram.hpp"
+#include "Process.hpp"
 
 // TODO: use UV_METRICS_IDLE_TIME
 
@@ -12,21 +16,27 @@ namespace datadog {
   // http://docs.libuv.org/en/v1.x/design.html#the-i-o-loop
   class EventLoop : public Collector {
     public:
-      EventLoop();
-      ~EventLoop();
+      explicit EventLoop(v8::Isolate* isolate);
+      virtual ~EventLoop() = default;
       EventLoop(const EventLoop&) = delete;
       void operator=(const EventLoop&) = delete;
 
+      GarbageCollection gc;
+      Heap heap;
+      Process process;
       std::function<void()> after_close;
+
+      static void delete_instance(void* arg, void (*cb)(void*), void* cbarg);
 
       void enable();
       void disable();
       void inject(Object carrier);
-      void close(const std::function<void()>& cb);
     protected:
       static void check_cb (uv_check_t* handle);
       static void prepare_cb (uv_prepare_t* handle);
       static void close_cb (uv_handle_t* handle);
+
+      void close(const std::function<void()>& cb);
     private:
       int handle_count_;
       uv_check_t check_handle_;
@@ -39,7 +49,7 @@ namespace datadog {
       uint64_t usage();
   };
 
-  EventLoop::EventLoop() {
+  EventLoop::EventLoop(v8::Isolate* isolate) {
     uv_loop_t* loop = Nan::GetCurrentEventLoop();
 
     uv_check_init(loop, &check_handle_);
@@ -54,6 +64,8 @@ namespace datadog {
     check_time_ = uv_hrtime();
     prepare_time_ = check_time_;
     timeout_ = 0;
+
+    node::AddEnvironmentCleanupHook(isolate, delete_instance, this);
   }
 
   void EventLoop::check_cb (uv_check_t* handle) {
@@ -111,5 +123,14 @@ namespace datadog {
 
     uv_close(reinterpret_cast<uv_handle_t*>(&check_handle_), &EventLoop::close_cb);
     uv_close(reinterpret_cast<uv_handle_t*>(&prepare_handle_), &EventLoop::close_cb);
+  }
+
+  void EventLoop::delete_instance(void* arg, void (*cb)(void*), void* cbarg) {
+    EventLoop* data = (static_cast<EventLoop*>(arg));
+
+    data->close([=]() -> void {
+      cb(cbarg);
+      delete data;
+    });
   }
 }

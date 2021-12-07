@@ -1,41 +1,41 @@
-#include "AddonData.hpp"
+#include "EventLoop.hpp"
 #include "Object.hpp"
 
 namespace datadog {
   namespace {
     void before_gc(v8::Isolate* isolate, v8::GCType type, v8::GCCallbackFlags flags, void* data) {
-      reinterpret_cast<AddonData*>(data)->gc.before(type);
+      reinterpret_cast<EventLoop*>(data)->gc.before(type);
     }
 
     void after_gc(v8::Isolate* isolate, v8::GCType type, v8::GCCallbackFlags flags, void* data) {
-      reinterpret_cast<AddonData*>(data)->gc.after(type);
+      reinterpret_cast<EventLoop*>(data)->gc.after(type);
     }
 
     static void start(const v8::FunctionCallbackInfo<v8::Value>& info) {
-      AddonData* data = reinterpret_cast<AddonData*>(info.Data().As<v8::External>()->Value());
+      EventLoop* data = reinterpret_cast<EventLoop*>(info.Data().As<v8::External>()->Value());
       v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-      data->eventLoop.enable();
+      data->enable();
 
       isolate->AddGCPrologueCallback(before_gc, data);
       isolate->AddGCEpilogueCallback(after_gc, data);
     }
 
     static void stop(const v8::FunctionCallbackInfo<v8::Value>& info) {
-      AddonData* data = reinterpret_cast<AddonData*>(info.Data().As<v8::External>()->Value());
+      EventLoop* data = reinterpret_cast<EventLoop*>(info.Data().As<v8::External>()->Value());
       v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-      data->eventLoop.disable();
+      data->disable();
 
       isolate->RemoveGCPrologueCallback(before_gc, data);
       isolate->RemoveGCEpilogueCallback(after_gc, data);
     }
 
     static void stats(const v8::FunctionCallbackInfo<v8::Value>& info) {
-      AddonData* data = reinterpret_cast<AddonData*>(info.Data().As<v8::External>()->Value());
+      EventLoop* data = reinterpret_cast<EventLoop*>(info.Data().As<v8::External>()->Value());
       Object obj;
 
-      data->eventLoop.inject(obj);
+      data->inject(obj);
       data->gc.inject(obj);
       data->process.inject(obj);
       data->heap.inject(obj);
@@ -46,7 +46,7 @@ namespace datadog {
 
   NODE_MODULE_INIT() {
     v8::Isolate* isolate = context->GetIsolate();
-    AddonData* data = new AddonData(isolate);
+    EventLoop* data = new EventLoop(isolate);
     v8::Local<v8::External> external = v8::External::New(isolate, data);
 
     exports->Set(
