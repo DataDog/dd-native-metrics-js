@@ -58,7 +58,7 @@ test-prebuild-linux-base: &test-prebuild-linux-base
   docker:
     - image: node:slim
   working_directory: ~/dd-native-metrics-js
-  resource_class: small
+  resource_class: large
   steps:
     - checkout-and-yarn-install
     - attach_workspace:
