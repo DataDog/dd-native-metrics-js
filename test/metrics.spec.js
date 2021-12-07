@@ -146,6 +146,4 @@ describe('metrics', () => {
       return Promise.all(promises).then(callback)
     }
   })
-
-  // TODO: test that `stop` is not needed when worker thread exits
 })
