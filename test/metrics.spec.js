@@ -134,7 +134,7 @@ describe('metrics', () => {
       }
     }
 
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 50; i++) {
       const worker = new Worker(path.join(__dirname, 'worker.js'))
 
       worker.once('exit', code => callback(code))
