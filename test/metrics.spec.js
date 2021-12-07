@@ -118,7 +118,9 @@ describe('metrics', () => {
     })
   })
 
-  it('should be stable in worker threads', done => {
+  it('should be stable in worker threads', function (done) {
+    this.timeout(30000)
+
     let exited = 0
 
     let callback = code => {
