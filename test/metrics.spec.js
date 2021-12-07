@@ -118,26 +118,32 @@ describe('metrics', () => {
     })
   })
 
-  it('should be stable in worker threads', function (done) {
-    this.timeout(30000)
+  it('should be stable in worker threads', function () {
+    this.timeout(120 * 1000)
 
-    let exited = 0
+    return testManyThreads(50, 10)
 
-    let callback = code => {
-      exited++
+    function testManyThreads (concurrency, runs, current = 1) {
+      const promises = []
+      const callback = runs > current
+        ? () => testManyThreads(concurrency, runs, current + 1)
+        : () => {}
 
-      if (code !== 0) {
-        done(new Error('Worker exited with non-zero code.'))
-        callback = () => {}
-      } else if (exited === 100) {
-        done()
+      for (let i = 0; i < concurrency; i++) {
+        const promise = new Promise((resolve, reject) => {
+          const worker = new Worker(path.join(__dirname, 'worker.js'))
+
+          worker.once('exit', code => {
+            code > 0
+              ? reject(new Error('Worker exited with non-zero code.'))
+              : resolve()
+          })
+        })
+
+        promises.push(promise)
       }
-    }
 
-    for (let i = 0; i < 50; i++) {
-      const worker = new Worker(path.join(__dirname, 'worker.js'))
-
-      worker.once('exit', code => callback(code))
+      return Promise.all(promises).then(callback)
     }
   })
 
