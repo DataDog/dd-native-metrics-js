@@ -25,7 +25,6 @@ namespace datadog {
       GarbageCollection gc;
       Heap heap;
       Process process;
-      std::function<void()> after_close;
 
       static void delete_instance(void* arg);
 
@@ -37,7 +36,7 @@ namespace datadog {
       static void prepare_cb (uv_prepare_t* handle);
       static void close_cb (uv_handle_t* handle);
 
-      void close(const std::function<void()>& cb);
+      void close();
     private:
       int handle_count_;
       uv_check_t check_handle_;
@@ -99,7 +98,7 @@ namespace datadog {
     --self->handle_count_;
 
     if (self->handle_count_ == 0) {
-      self->after_close();
+      delete self;
     }
   }
 
@@ -119,9 +118,7 @@ namespace datadog {
     histogram_.reset();
   }
 
-  void EventLoop::close(const std::function<void()>& cb) {
-    after_close = cb;
-
+  void EventLoop::close() {
     uv_close(reinterpret_cast<uv_handle_t*>(&check_handle_), &EventLoop::close_cb);
     uv_close(reinterpret_cast<uv_handle_t*>(&prepare_handle_), &EventLoop::close_cb);
   }
@@ -129,8 +126,6 @@ namespace datadog {
   void EventLoop::delete_instance(void* arg) {
     EventLoop* data = (static_cast<EventLoop*>(arg));
 
-    data->close([=]() -> void {
-      delete data;
-    });
+    data->close();
   }
 }
