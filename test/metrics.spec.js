@@ -121,7 +121,7 @@ describe('metrics', () => {
   it('should be stable in worker threads', function () {
     this.timeout(120 * 1000)
 
-    return testManyThreads(50, 10)
+    return testManyThreads(20, 25)
 
     function testManyThreads (concurrency, runs, current = 1) {
       const promises = []
