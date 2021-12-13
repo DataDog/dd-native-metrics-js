@@ -1,6 +1,8 @@
 'use strict'
 
 const { expect } = require('chai')
+const path = require('path')
+const { Worker } = require('worker_threads')
 const nativeMetrics = require('..')
 
 describe('metrics', () => {
@@ -102,5 +104,46 @@ describe('metrics', () => {
 
       done()
     })
+  })
+
+  it('should support worker threads', done => {
+    const worker = new Worker(path.join(__dirname, 'worker.js'))
+
+    worker.once('exit', code => {
+      if (code) {
+        done(new Error('Worker exited with non-zero code.'))
+      } else {
+        done()
+      }
+    })
+  })
+
+  it('should be stable in worker threads', function () {
+    this.timeout(120 * 1000)
+
+    return testManyThreads(20, 25)
+
+    function testManyThreads (concurrency, runs, current = 1) {
+      const promises = []
+      const callback = runs > current
+        ? () => testManyThreads(concurrency, runs, current + 1)
+        : () => {}
+
+      for (let i = 0; i < concurrency; i++) {
+        const promise = new Promise((resolve, reject) => {
+          const worker = new Worker(path.join(__dirname, 'worker.js'))
+
+          worker.once('exit', code => {
+            code > 0
+              ? reject(new Error('Worker exited with non-zero code.'))
+              : resolve()
+          })
+        })
+
+        promises.push(promise)
+      }
+
+      return Promise.all(promises).then(callback)
+    }
   })
 })
