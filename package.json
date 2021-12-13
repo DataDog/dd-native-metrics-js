@@ -1,6 +1,6 @@
 {
   "name": "@datadog/native-metrics",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Native metrics collector for libuv and v8",
   "main": "index.js",
   "repository": "git@github.com:DataDog/dd-native-metrics-js.git",
