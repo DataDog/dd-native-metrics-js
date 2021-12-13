@@ -58,7 +58,7 @@ test-prebuild-linux-base: &test-prebuild-linux-base
   docker:
     - image: node:slim
   working_directory: ~/dd-native-metrics-js
-  resource_class: small
+  resource_class: large
   steps:
     - checkout-and-yarn-install
     - attach_workspace:
@@ -159,7 +159,7 @@ jobs:
       # from node:alpine on 2021-08-30
       - image: node@sha256:1ee1478ef46a53fc0584729999a0570cf2fb174fbfe0370edbf09680b2378b56
     working_directory: ~/dd-native-metrics-js
-    resource_class: small
+    resource_class: large
     steps:
       - run:
           name: Install job dependencies

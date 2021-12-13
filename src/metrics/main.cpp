@@ -1,59 +1,70 @@
-#include <nan.h>
-
 #include "EventLoop.hpp"
-#include "GarbageCollection.hpp"
-#include "Heap.hpp"
 #include "Object.hpp"
-#include "Process.hpp"
 
 namespace datadog {
   namespace {
-    EventLoop eventLoop;
-    GarbageCollection gc;
-    Heap heap;
-    Process process;
-
-    NAN_GC_CALLBACK(before_gc) {
-      gc.before(type);
+    void before_gc(v8::Isolate* isolate, v8::GCType type, v8::GCCallbackFlags flags, void* data) {
+      reinterpret_cast<EventLoop*>(data)->gc.before(type);
     }
 
-    NAN_GC_CALLBACK(after_gc) {
-      gc.after(type);
+    void after_gc(v8::Isolate* isolate, v8::GCType type, v8::GCCallbackFlags flags, void* data) {
+      reinterpret_cast<EventLoop*>(data)->gc.after(type);
     }
 
-    NAN_METHOD(start) {
-      eventLoop.enable();
+    static void start(const v8::FunctionCallbackInfo<v8::Value>& info) {
+      EventLoop* data = reinterpret_cast<EventLoop*>(info.Data().As<v8::External>()->Value());
+      v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-      Nan::AddGCPrologueCallback(before_gc);
-      Nan::AddGCEpilogueCallback(after_gc);
+      data->enable();
+
+      isolate->AddGCPrologueCallback(before_gc, data);
+      isolate->AddGCEpilogueCallback(after_gc, data);
     }
 
-    NAN_METHOD(stop) {
-      eventLoop.disable();
+    static void stop(const v8::FunctionCallbackInfo<v8::Value>& info) {
+      EventLoop* data = reinterpret_cast<EventLoop*>(info.Data().As<v8::External>()->Value());
+      v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-      Nan::RemoveGCPrologueCallback(before_gc);
-      Nan::RemoveGCEpilogueCallback(after_gc);
+      data->disable();
+
+      isolate->RemoveGCPrologueCallback(before_gc, data);
+      isolate->RemoveGCEpilogueCallback(after_gc, data);
     }
 
-    NAN_METHOD(stats) {
+    static void stats(const v8::FunctionCallbackInfo<v8::Value>& info) {
+      EventLoop* data = reinterpret_cast<EventLoop*>(info.Data().As<v8::External>()->Value());
       Object obj;
 
-      eventLoop.inject(obj);
-      gc.inject(obj);
-      process.inject(obj);
-      heap.inject(obj);
+      data->inject(obj);
+      data->gc.inject(obj);
+      data->process.inject(obj);
+      data->heap.inject(obj);
 
       info.GetReturnValue().Set(obj.to_json());
     }
   }
 
-  NAN_MODULE_INIT(init) {
-    Object obj = Object(target);
+  NODE_MODULE_INIT() {
+    v8::Isolate* isolate = context->GetIsolate();
+    EventLoop* data = new EventLoop(isolate);
+    v8::Local<v8::External> external = v8::External::New(isolate, data);
 
-    obj.set("start", start);
-    obj.set("stop", stop);
-    obj.set("stats", stats);
+    exports->Set(
+      context,
+      Nan::New("start").ToLocalChecked(),
+      v8::FunctionTemplate::New(isolate, start, external)->GetFunction(context).ToLocalChecked()
+    ).FromJust();
+
+    exports->Set(
+      context,
+      Nan::New("stop").ToLocalChecked(),
+      v8::FunctionTemplate::New(isolate, stop, external)->GetFunction(context).ToLocalChecked()
+    ).FromJust();
+
+    exports->Set(
+      context,
+      Nan::New("stats").ToLocalChecked(),
+      v8::FunctionTemplate::New(isolate, stats, external)->GetFunction(context).ToLocalChecked()
+    ).FromJust();
   }
-
-  NODE_MODULE(metrics, init);
 }
