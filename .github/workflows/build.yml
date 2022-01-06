@@ -1,3 +1,4 @@
+on: push
 jobs:
   linux-x86:
     runs-on: ubuntu-latest
