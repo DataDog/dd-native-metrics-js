@@ -7,6 +7,7 @@ jobs:
       image: node@sha256:c88ef4f7ca8d52ed50366d821e104d029f43e8686120a29541ce0371f333453f
     name: Linux x86-64
     steps:
+      - uses: actions/checkout@v2
       - run: yarn versions
       # TODO: cache
       - run: yarn install --ignore-engines
