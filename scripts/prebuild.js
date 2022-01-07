@@ -35,6 +35,10 @@ function prebuildify () {
     mkdirp.sync(`prebuilds/${platform}-${arch}`)
 
     targets.forEach(target => {
+      if (platform === 'linux' && arch === 'ia32' && semver.gte(target.version, '14.0.0')) {
+        return
+      }
+
       const output = `prebuilds/${platform}-${arch}/node-${target.abi}.node`
       const cmd = [
         'node-gyp rebuild',

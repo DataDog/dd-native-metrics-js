@@ -16,5 +16,5 @@ runs:
       shell: bash
     - uses: actions/upload-artifact@v2
       with:
-        name: ${{ github.run_id }}
+        name: prebuilds
         path: prebuilds/**/*
