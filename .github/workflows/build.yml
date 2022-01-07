@@ -68,7 +68,7 @@ jobs:
   macos-intel-test:
     strategy:
       matrix:
-        arch: ['ia32', 'x64']
+        node: [12, 14, 16, 17]
     needs: macos-intel
     runs-on: macos-10.15
     name: macos-intel-test-node-${{ matrix.node }}
