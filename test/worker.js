@@ -14,7 +14,9 @@ setImmediate(() => {
   const stats = metrics.stats()
 
   expect(stats.eventLoop.count).to.equal(1)
-  expect(stats.eventLoop.min).to.be.gte(100 * 1e6).and.lte(100 * 1e7)
-  expect(stats.eventLoop.max).to.be.gte(100 * 1e6).and.lte(100 * 1e7)
-  expect(stats.eventLoop.sum).to.be.gte(100 * 1e6).and.lte(100 * 1e7)
+
+  // Check for 90ms instead of 100ms because it's not precise.
+  expect(stats.eventLoop.min).to.be.gte(90 * 1e6).and.lte(100 * 1e7)
+  expect(stats.eventLoop.max).to.be.gte(90 * 1e6).and.lte(100 * 1e7)
+  expect(stats.eventLoop.sum).to.be.gte(90 * 1e6).and.lte(100 * 1e7)
 })
