@@ -1,17 +1,7 @@
 runs:
   using: composite
   steps:
-    - uses: actions/checkout@v2
-    - run: yarn versions
-      shell: bash
-    - uses: actions/cache@v2
-      id: cache
-      with:
-        path: node_modules
-        key: npm-${{ runner.os }}-${{ hashFiles('package.json') }}
-    - run: yarn install
-      shell: bash
-      if: steps.cache.outputs.cache-hit != 'true'
+    - uses: ./.github/actions/yarn
     - run: yarn prebuild
       shell: bash
     - uses: actions/upload-artifact@v2
