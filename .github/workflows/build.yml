@@ -13,7 +13,6 @@ jobs:
     env:
       ARCH: ${{ matrix.arch }}
     steps:
-      - uses: actions/checkout@v2
       - run: apt-get update && apt-get install -y g++-multilib
       - uses: ./.github/actions/prebuild
 
@@ -27,13 +26,7 @@ jobs:
     container:
       image: i386/node:${{ matrix.node }}-alpine
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/download-artifact@v2
-        with:
-          path: prebuilds
-      - run: rm binding.gyp
-      - uses: ./.github/actions/yarn
-      - run: yarn test
+      - uses: ./.github/actions/test
 
   linux-x64-test:
     strategy:
@@ -43,16 +36,10 @@ jobs:
     runs-on: ubuntu-latest
     name: linux-x64-test-${{ matrix.node }}
     steps:
-      - uses: actions/checkout@v2
-      - run: rm binding.gyp
       - uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node }}
-          cache: yarn
-      - uses: actions/download-artifact@v2
-        with:
-          path: prebuilds
-      - run: yarn test
+      - uses: ./.github/actions/test
 
   macos-apple:
     runs-on: macos-11
@@ -60,7 +47,6 @@ jobs:
     env:
       ARCH: arm64
     steps:
-      - uses: actions/checkout@v2
       - uses: ./.github/actions/prebuild
 
   macos-intel:
@@ -72,23 +58,20 @@ jobs:
     env:
       ARCH: ${{ matrix.arch }}
     steps:
-      - uses: actions/checkout@v2
       - uses: ./.github/actions/prebuild
 
   macos-intel-test:
     strategy:
       matrix:
         arch: ['ia32', 'x64']
+    needs: macos-intel
     runs-on: macos-10.15
     name: macos-intel-test-node-${{ matrix.node }}
     steps:
-      - uses: actions/checkout@v2
-      - run: rm binding.gyp
       - uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node }}
-          cache: yarn
-      - run: yarn test
+      - uses: ./.github/actions/test
 
   windows:
     strategy:
@@ -100,20 +83,17 @@ jobs:
       NODE_VERSIONS: ${{ matrix.node }}
       ARCH: ${{ matrix.arch }}
     steps:
-      - uses: actions/checkout@v2
       - uses: ./.github/actions/prebuild
 
   windows-test:
     strategy:
       matrix:
         node: [12, 14, 16, 17]
+    needs: windows
     runs-on: windows-2019
     name: windows-test-node-${{ matrix.node }}
     steps:
-      - uses: actions/checkout@v2
-      - run: rm binding.gyp
       - uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node }}
-          cache: yarn
-      - run: yarn test
+      - uses: ./.github/actions/test

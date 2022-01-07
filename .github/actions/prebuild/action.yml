@@ -1,7 +1,8 @@
 runs:
   using: composite
   steps:
-    - uses: ./.github/actions/yarn
+    - uses: actions/checkout@v2
+    - uses: ./.github/actions/install
     - run: yarn prebuild
       shell: bash
     - uses: actions/upload-artifact@v2
