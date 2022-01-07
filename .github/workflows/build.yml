@@ -13,6 +13,6 @@ jobs:
   prebuilds:
     needs: ['linux']
     steps:
-      uses: actions/download-artifact@v2
-      run: ls -lisa prebuilds
-      run: yarn prebuilds
+      - uses: actions/download-artifact@v2
+      - run: ls -lisa prebuilds
+      - run: yarn prebuilds
