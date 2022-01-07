@@ -1,23 +1,23 @@
 on: push
 jobs:
-  linux:
-    runs-on: ubuntu-latest
-    container:
-      # using oldest image to ensure support for older glibc
-      # from node:12.0.0 on 2021-08-30
-      image: node@sha256:c88ef4f7ca8d52ed50366d821e104d029f43e8686120a29541ce0371f333453f
-    name: Linux 64
-    steps:
-      - uses: actions/checkout@v1
-      - uses: ./.github/actions/prebuild
+  # linux:
+  #   runs-on: ubuntu-latest
+  #   container:
+  #     # using oldest image to ensure support for older glibc
+  #     # from node:12.0.0 on 2021-08-30
+  #     image: node@sha256:c88ef4f7ca8d52ed50366d821e104d029f43e8686120a29541ce0371f333453f
+  #   name: Linux 64
+  #   steps:
+  #     - uses: actions/checkout@v1
+  #     - uses: ./.github/actions/prebuild
 
   prebuilds:
     runs-on: ubuntu-latest
-    needs: ['linux']
+    # needs: ['linux']
     steps:
-      - uses: actions/download-artifact@v2
-        with:
-          path: ${{ runner.temp }}/prebuilds
-      - run: mv $RUNNER_TEMP/prebuilds/* prebuilds
-      - run: ls -lisaR prebuilds
-      - run: yarn prebuilds
+      # - uses: actions/download-artifact@v2
+      #   with:
+      #     path: ${{ runner.temp }}/prebuilds
+      # - run: mv $RUNNER_TEMP/prebuilds/* prebuilds
+      - run: ls -lisaR
+      # - run: yarn prebuilds
