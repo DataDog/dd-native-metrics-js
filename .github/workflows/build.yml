@@ -27,6 +27,7 @@ jobs:
       image: node:${{ matrix.node }}-alpine
     name: linux-test-${{ matrix.node }}
     steps:
+      - run: apk update && apk add bash
       - uses: actions/checkout@v2
       - uses: ./.github/actions/test
 
