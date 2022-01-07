@@ -14,6 +14,7 @@ jobs:
       ARCH: ${{ matrix.arch }}
     steps:
       - uses: actions/checkout@v2
+      - run: apt-get update && apt-get install -y g++-multilib
       - uses: ./.github/actions/prebuild
 
   macos-apple:
@@ -40,13 +41,12 @@ jobs:
   windows:
     strategy:
       matrix:
-        arch: ['ia32', 'x64']
         node: [12, 13, 14, 15, 16, 17] # VC++ is slow, split by Node version
     runs-on: windows-2019
-    name: windows-${{ matrix.arch }}-node-${{ matrix.node }}
+    name: windows-node-${{ matrix.node }}
     env:
       NODE_VERSIONS: ${{ matrix.node }}
-      ARCH: ${{ matrix.arch }}
+      ARCH: ia32,x64
     steps:
       - uses: actions/checkout@v2
       - uses: ./.github/actions/prebuild
