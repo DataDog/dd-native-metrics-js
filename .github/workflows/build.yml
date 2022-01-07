@@ -10,7 +10,7 @@ jobs:
       # from node:12.0.0 on 2021-08-30
       image: node@sha256:c88ef4f7ca8d52ed50366d821e104d029f43e8686120a29541ce0371f333453f
     name: linux-${{ matrix.arch }}
-    environment:
+    env:
       ARCH: ${{ matrix.arch }}
     steps:
       - uses: actions/checkout@v2
@@ -19,7 +19,7 @@ jobs:
   macos-apple:
     runs-on: macos-11
     name: macos-apple
-    environment:
+    env:
       ARCH: arm64
     steps:
       - uses: actions/checkout@v2
@@ -31,7 +31,7 @@ jobs:
         arch: ['ia32', 'x64']
     runs-on: macos-10.15
     name: macos-intel-${{ matrix.arch }}
-    environment:
+    env:
       ARCH: ${{ matrix.arch }}
     steps:
       - uses: actions/checkout@v2
@@ -44,7 +44,7 @@ jobs:
         node: [12, 13, 14, 15, 16, 17] # VC++ is slow, split by Node version
     runs-on: windows-2019
     name: windows-${{ matrix.arch }}-node-${{ matrix.node }}
-    environment:
+    env:
       NODE_VERSIONS: ${{ matrix.node }}
       ARCH: ${{ matrix.arch }}
     steps:
