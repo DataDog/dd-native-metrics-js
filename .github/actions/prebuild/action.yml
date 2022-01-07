@@ -9,7 +9,7 @@ runs:
       with:
         path: node_modules
         key: npm-${{ runner.os }}-${{ hashFiles('package.json') }}
-    - run: yarn install --ignore-engines
+    - run: yarn install
       shell: bash
       if: steps.cache.outputs.cache-hit != 'true'
     - run: yarn prebuild

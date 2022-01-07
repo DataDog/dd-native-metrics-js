@@ -17,6 +17,43 @@ jobs:
       - run: apt-get update && apt-get install -y g++-multilib
       - uses: ./.github/actions/prebuild
 
+  linux-ia32-test:
+    strategy:
+      matrix:
+        node: [12]
+    needs: linux
+    runs-on: ubuntu-latest
+    name: linux-ia32-test-${{ matrix.node }}
+    container:
+      image: i386/node:${{ matrix.node }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v2
+        with:
+          path: prebuilds
+      - run: rm binding.gyp
+      - run: yarn install --production
+      - run: yarn test
+
+  linux-x64-test:
+    strategy:
+      matrix:
+        node: [12, 14, 16, 17]
+    needs: linux
+    runs-on: ubuntu-latest
+    name: linux-x64-test-${{ matrix.node }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node }}
+      - uses: actions/download-artifact@v2
+        with:
+          path: prebuilds
+      - run: rm binding.gyp
+      - run: yarn install --production
+      - run: yarn test
+
   macos-apple:
     runs-on: macos-11
     name: macos-apple
