@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: node:${{ matrix.node }}-alpine
-    name: linux-test-${{ matrix.node }}
+    name: linux-alpine-test-${{ matrix.node }}
     steps:
       - run: apk update && apk add bash
       - uses: actions/checkout@v2
