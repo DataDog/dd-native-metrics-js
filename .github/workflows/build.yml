@@ -14,6 +14,7 @@ jobs:
       ARCH: ${{ matrix.arch }}
     steps:
       - run: apt-get update && apt-get install -y g++-multilib
+      - uses: actions/checkout@v2
       - uses: ./.github/actions/prebuild
 
   linux-ia32-test:
@@ -26,6 +27,7 @@ jobs:
     container:
       image: i386/node:${{ matrix.node }}-alpine
     steps:
+      - uses: actions/checkout@v2
       - uses: ./.github/actions/test
 
   linux-x64-test:
@@ -39,6 +41,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node }}
+      - uses: actions/checkout@v2
       - uses: ./.github/actions/test
 
   macos-apple:
@@ -58,6 +61,7 @@ jobs:
     env:
       ARCH: ${{ matrix.arch }}
     steps:
+      - uses: actions/checkout@v2
       - uses: ./.github/actions/prebuild
 
   macos-intel-test:
@@ -71,6 +75,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node }}
+      - uses: actions/checkout@v2
       - uses: ./.github/actions/test
 
   windows:
@@ -83,6 +88,7 @@ jobs:
       NODE_VERSIONS: ${{ matrix.node }}
       ARCH: ${{ matrix.arch }}
     steps:
+      - uses: actions/checkout@v2
       - uses: ./.github/actions/prebuild
 
   windows-test:
@@ -96,4 +102,5 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node }}
+      - uses: actions/checkout@v2
       - uses: ./.github/actions/test
