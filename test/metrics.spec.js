@@ -99,8 +99,10 @@ describe('metrics', () => {
       const stats = nativeMetrics.stats()
 
       expect(stats.eventLoop.count).to.be.gte(1)
-      expect(stats.eventLoop.max).to.be.gte(100 * 1e6)
-      expect(stats.eventLoop.sum).to.be.gte(100 * 1e6)
+      expect(stats.eventLoop.max).to.be.gte(90 * 1e6)
+      expect(stats.eventLoop.max).to.be.lte(110 * 1e6)
+      expect(stats.eventLoop.sum).to.be.gte(90 * 1e6)
+      expect(stats.eventLoop.sum).to.be.lte(110 * 1e6)
 
       done()
     })
