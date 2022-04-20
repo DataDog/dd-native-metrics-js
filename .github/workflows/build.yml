@@ -66,7 +66,7 @@ jobs:
   alpine-test:
     strategy:
       matrix:
-        node: [12, 14, 16, 17]
+        node: [12, 14, 16, 18]
     needs: linux
     runs-on: ubuntu-latest
     container:
@@ -80,7 +80,7 @@ jobs:
   linux-test:
     strategy:
       matrix:
-        node: [12, 14, 16, 17]
+        node: [12, 14, 16, 18]
     needs: linux
     runs-on: ubuntu-latest
     name: linux-test-${{ matrix.node }}
@@ -94,7 +94,7 @@ jobs:
   macos-intel-test:
     strategy:
       matrix:
-        node: [12, 14, 16, 17]
+        node: [12, 14, 16, 18]
     needs: macos-intel
     runs-on: macos-10.15
     name: macos-intel-test-${{ matrix.node }}
@@ -108,7 +108,7 @@ jobs:
   windows-test:
     strategy:
       matrix:
-        node: [12, 14, 16, 17]
+        node: [12, 14, 16, 18]
     needs: windows
     runs-on: windows-2019
     name: windows-test-${{ matrix.node }}

@@ -14,7 +14,8 @@
         "-std=c++14",
         "-stdlib=libc++",
         "-Wall",
-        "-Werror"
+        "-Werror",
+        "-Wno-deprecated"
       ]
     },
     "conditions": [
@@ -22,16 +23,15 @@
         "cflags": [
           "-std=c++11",
           "-Wall",
-          "-Werror"
+          "-Werror",
+          "-Wno-deprecated"
         ],
         "cflags_cc": [
           "-Wno-cast-function-type"
         ]
       }],
       ["OS == 'win'", {
-        "cflags": [
-          "/WX"
-        ]
+        "cflags": []
       }]
     ]
   }]
