@@ -11,8 +11,6 @@ const rimraf = require('rimraf')
 const exec = require('./helpers/exec')
 const title = require('./helpers/title')
 
-const { CIRCLE_TOKEN } = process.env
-
 title('Downloading and compiling files for release.')
 
 const revision = exec.pipe('git rev-parse HEAD')
@@ -23,13 +21,19 @@ const branch = exec.pipe('git symbolic-ref --short HEAD')
 
 console.log(branch)
 
-const headers = CIRCLE_TOKEN
-  ? { 'circle-token': CIRCLE_TOKEN }
-  : {}
+const { GITHUB_TOKEN } = process.env
+
+if (!GITHUB_TOKEN) {
+  // eslint-disable-next-line max-len
+  throw new Error('The GITHUB_TOKEN environment variable must be set to a personal access token with the `public_repo` scope to download artifacts.')
+}
+
 const client = axios.create({
   baseURL: 'https://api.github.com/',
   timeout: 5000,
-  headers
+  headers: {
+    Authorization: `token ${GITHUB_TOKEN}`
+  }
 })
 
 const fetch = (url, options) => {
@@ -87,7 +91,7 @@ function getArtifact (workflow) {
 }
 
 function downloadArtifact (artifact) {
-  return fetch(`/actions/artifacts/${artifact.id}/zip`, { responseType: 'stream' })
+  return fetch(`/repos/DataDog/dd-native-metrics-js/actions/artifacts/${artifact.id}/zip`, { responseType: 'stream' })
     .then(response => {
       const destination = path.join(os.tmpdir(), 'prebuilds.zip')
 
@@ -103,7 +107,7 @@ function extractPrebuilds () {
   rimraf.sync('prebuilds')
 
   const filename = path.join(os.tmpdir(), 'prebuilds.zip')
-  const target = path.join(__dirname, '..')
+  const target = path.join(__dirname, '..', 'prebuilds')
   const zip = new AdmZip(filename)
 
   zip.extractAllTo(target, true)
