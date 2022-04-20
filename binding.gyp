@@ -13,18 +13,14 @@
       "OTHER_CFLAGS": [
         "-std=c++14",
         "-stdlib=libc++",
-        "-Wall",
-        "-Werror",
-        "-Wno-deprecated"
+        "-Wall"
       ]
     },
     "conditions": [
       ["OS == 'linux'", {
         "cflags": [
           "-std=c++11",
-          "-Wall",
-          "-Werror",
-          "-Wno-deprecated"
+          "-Wall"
         ],
         "cflags_cc": [
           "-Wno-cast-function-type"
