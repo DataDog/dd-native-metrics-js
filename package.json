@@ -11,7 +11,6 @@
     "install": "(node scripts/should_rebuild && node-gyp-build) || exit 0",
     "rebuild": "node-gyp rebuild",
     "prebuild": "node scripts/prebuild.js",
-    "prebuilds": "node scripts/prebuilds.js",
     "prepublishOnly": "node scripts/prepublish.js",
     "lint": "node scripts/check_licenses.js && eslint .",
     "test": "mocha 'test/**/*.spec.js'"
@@ -25,10 +24,11 @@
     "node": ">=12"
   },
   "dependencies": {
-    "nan": "^2.14.2",
+    "nan": "^2.15.0",
     "node-gyp-build": "^3.9.0"
   },
   "devDependencies": {
+    "adm-zip": "^0.5.9",
     "axios": "^0.21.1",
     "chai": "^4.3.4",
     "checksum": "^0.1.1",
