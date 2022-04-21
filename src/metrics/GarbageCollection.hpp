@@ -25,12 +25,21 @@ namespace datadog {
   };
 
   GarbageCollection::GarbageCollection() {
+#if NODE_MODULE_VERSION >= 108
+    types_[1] = "scavenge";
+    types_[2] = "minor_mark_compact";
+    types_[4] = "mark_sweep_compact";
+    types_[8] = "incremental_marking";
+    types_[16] = "process_weak_callbacks";
+    types_[31] = "all";
+#else
     types_[1] = "scavenge";
     types_[2] = "mark_sweep_compact";
     types_[3] = "all";
     types_[4] = "incremental_marking";
     types_[8] = "process_weak_callbacks";
     types_[15] = "all";
+#endif
 
     pause_[v8::GCType::kGCTypeAll] = Histogram();
   }

@@ -2,17 +2,14 @@
 
 /* eslint-disable no-console */
 
+const AdmZip = require('adm-zip')
 const axios = require('axios')
-const checksum = require('checksum')
 const fs = require('fs')
 const os = require('os')
 const path = require('path')
 const rimraf = require('rimraf')
-const tar = require('tar')
 const exec = require('./helpers/exec')
 const title = require('./helpers/title')
-
-const { CIRCLE_TOKEN } = process.env
 
 title('Downloading and compiling files for release.')
 
@@ -24,13 +21,19 @@ const branch = exec.pipe('git symbolic-ref --short HEAD')
 
 console.log(branch)
 
-const headers = CIRCLE_TOKEN
-  ? { 'circle-token': CIRCLE_TOKEN }
-  : {}
+const { GITHUB_TOKEN } = process.env
+
+if (!GITHUB_TOKEN) {
+  // eslint-disable-next-line max-len
+  throw new Error('The GITHUB_TOKEN environment variable must be set to a personal access token with the `public_repo` scope to download artifacts.')
+}
+
 const client = axios.create({
-  baseURL: 'https://circleci.com/api/v2/',
+  baseURL: 'https://api.github.com/',
   timeout: 5000,
-  headers
+  headers: {
+    Authorization: `token ${GITHUB_TOKEN}`
+  }
 })
 
 const fetch = (url, options) => {
@@ -41,120 +44,71 @@ const fetch = (url, options) => {
     .catch(() => client.get(url, options))
 }
 
-getPipeline()
-  .then(getWorkflow)
-  .then(getPrebuildsJob)
-  .then(getPrebuildArtifacts)
-  .then(downloadArtifacts)
-  .then(validatePrebuilds)
+getWorkflow()
+  .then(getArtifact)
+  .then(downloadArtifact)
   .then(extractPrebuilds)
   .catch(e => {
     process.exitCode = 1
     console.error(e)
   })
 
-function getPipeline () {
-  return fetch(`project/github/DataDog/dd-native-metrics-js/pipeline?branch=${branch}`)
+function getWorkflow () {
+  return fetch(`/repos/DataDog/dd-native-metrics-js/actions/workflows/build.yml/runs?branch=${branch}`)
     .then(response => {
-      const pipeline = response.data.items
-        .filter(item => item.trigger.type !== 'schedule')
-        .find(item => item.vcs.revision === revision)
-
-      if (!pipeline) {
-        throw new Error(`Unable to find CircleCI pipeline for ${branch}@${revision}.`)
-      }
-
-      return pipeline
-    })
-}
-
-function getWorkflow (pipeline) {
-  return fetch(`pipeline/${pipeline.id}/workflow`)
-    .then(response => {
-      const workflows = response.data.items
-        .sort((a, b) => (a.stopped_at < b.stopped_at) ? 1 : -1)
-      const workflow = workflows.find(workflow => workflow.name === 'build')
+      const workflow = response.data.workflow_runs
+        .filter(item => item.event === 'push')
+        .find(item => item.head_sha === revision)
 
       if (!workflow) {
-        throw new Error(`Unable to find CircleCI workflow for pipeline ${pipeline.id}.`)
+        throw new Error(`Unable to find workflow for ${branch}@${revision}.`)
       }
 
-      if (!workflow.stopped_at) {
-        throw new Error(`Workflow ${workflow.id} is still running for pipeline ${pipeline.id}.`)
+      if (workflow.status !== 'completed') {
+        throw new Error(`Workflow ${workflow.id} is still running.`)
       }
 
-      if (workflow.status !== 'success') {
-        throw new Error(`Aborting because CircleCI workflow ${workflow.id} did not succeed.`)
+      if (workflow.conclusion !== 'success') {
+        throw new Error(`Aborting because workflow ${workflow.id} did not succeed.`)
       }
 
       return workflow
     })
 }
 
-function getPrebuildsJob (workflow) {
-  return fetch(`workflow/${workflow.id}/job`)
+function getArtifact (workflow) {
+  return fetch(`/repos/DataDog/dd-native-metrics-js/actions/runs/${workflow.id}/artifacts`)
     .then(response => {
-      const job = response.data.items
-        .find(item => item.name === 'prebuilds')
+      const artifact = response.data.artifacts
+        .find(artifact => artifact.name === 'prebuilds')
 
-      if (!job) {
-        throw new Error(`Missing prebuild jobs in workflow ${workflow.id}.`)
+      if (!artifact) {
+        throw new Error(`Missing artifacts in workflow ${workflow.id}.`)
       }
 
-      return job
+      return artifact
     })
 }
 
-function getPrebuildArtifacts (job) {
-  return fetch(`project/github/DataDog/dd-native-metrics-js/${job.job_number}/artifacts`)
+function downloadArtifact (artifact) {
+  return fetch(`/repos/DataDog/dd-native-metrics-js/actions/artifacts/${artifact.id}/zip`, { responseType: 'stream' })
     .then(response => {
-      const artifacts = response.data.items
-        .filter(artifact => /\/prebuilds\.tgz/.test(artifact.url))
-
-      if (artifacts.length === 0) {
-        throw new Error(`Missing artifacts in job ${job.job_number}.`)
-      }
-
-      return artifacts
-    })
-}
-
-function downloadArtifacts (artifacts) {
-  const files = artifacts.map(artifact => artifact.url)
-
-  return Promise.all(files.map(downloadArtifact))
-}
-
-function downloadArtifact (file) {
-  return fetch(file, { responseType: 'stream' })
-    .then(response => {
-      const parts = file.split('/')
-      const basename = os.tmpdir()
-      const filename = parts.slice(-1)[0]
+      const destination = path.join(os.tmpdir(), 'prebuilds.zip')
 
       return new Promise((resolve, reject) => {
-        response.data.pipe(fs.createWriteStream(path.join(basename, filename)))
+        response.data.pipe(fs.createWriteStream(destination))
           .on('finish', () => resolve())
           .on('error', reject)
       })
     })
 }
 
-function validatePrebuilds () {
-  const file = path.join(os.tmpdir(), 'prebuilds.tgz')
-  const content = fs.readFileSync(file)
-  const sum = fs.readFileSync(path.join(`${file}.sha256`), 'ascii')
-
-  if (sum !== checksum(content, { algorithm: 'sha256' })) {
-    throw new Error('Invalid checksum for "prebuilds.tgz".')
-  }
-}
-
 function extractPrebuilds () {
   rimraf.sync('prebuilds')
 
-  return tar.extract({
-    file: path.join(os.tmpdir(), 'prebuilds.tgz'),
-    cwd: path.join(__dirname, '..')
-  })
+  const filename = path.join(os.tmpdir(), 'prebuilds.zip')
+  const target = path.join(__dirname, '..', 'prebuilds')
+  const zip = new AdmZip(filename)
+
+  zip.extractAllTo(target, true)
 }
