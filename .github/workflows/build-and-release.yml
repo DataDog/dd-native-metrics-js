@@ -10,7 +10,7 @@ jobs:
     uses: ./.github/workflows/build.yml
   release:
     uses: ./.github/workflows/release.yml
-    if: ${{ contains(['v1.x', 'npm-publish'], github.ref_name) }}
+    if: ${{ contains(fromJSON('["v1.x", "npm-publish"]'), github.ref_name) }}
     needs: [build]
     secrets:
       npm_token: ${{ env.NPM_TOKEN }}
