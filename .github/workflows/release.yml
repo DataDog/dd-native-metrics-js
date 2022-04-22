@@ -14,8 +14,8 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     environment: npm
-    with:
-      npm_token: ${{ env.NPM_TOKEN }}
+    # with:
+    #   npm_token: ${{ env.NPM_TOKEN }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/download-artifact@v2
