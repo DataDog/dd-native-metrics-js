@@ -19,4 +19,4 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/download-artifact@v2
-      - run: ls -lisa prebuilds
+      - run: npm whoami
