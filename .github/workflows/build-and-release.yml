@@ -12,6 +12,3 @@ jobs:
     uses: ./.github/workflows/release.yml
     if: ${{ contains(fromJSON('["v1.x", "npm-publish"]'), github.ref_name) }}
     needs: [build]
-    environment: npm
-    secrets:
-      npm_token: ${{ env.NPM_TOKEN }}
