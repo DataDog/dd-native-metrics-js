@@ -1,20 +1,17 @@
-name: Publish
+name: Release
 
 on:
-  # push:
-  # schedule:
-  #   - cron: '0 4 * * *'
   workflow_call:
-    # secrets:
-    #   npm_token:
-    #     required: true
+    secrets:
+      npm_token:
+        required: true
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
-  npm:
+  publish:
     runs-on: ubuntu-latest
     environment: npm
     steps:
