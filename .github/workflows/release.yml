@@ -2,9 +2,9 @@ name: Release
 
 on:
   workflow_call:
-    secrets:
-      npm_token:
-        required: true
+    # secrets:
+    #   npm_token:
+    #     required: true
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
