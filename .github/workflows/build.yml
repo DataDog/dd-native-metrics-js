@@ -2,6 +2,6 @@ name: Build
 
 jobs:
   build-and-publish:
-    uses: ./.github/workflows/reusable
+    uses: ./.github/workflows/reusable.yml
     # secrets:
     #   npm_token: ${{ env.NPM_TOKEN }}

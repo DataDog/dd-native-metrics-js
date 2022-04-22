@@ -126,10 +126,22 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     needs:
-      - alpine-test
-      - linux-test
-      - macos-test
-      - windows-test
+      - alpine-test-12
+      - alpine-test-14
+      - alpine-test-16
+      - alpine-test-18
+      - linux-test-12
+      - linux-test-14
+      - linux-test-16
+      - linux-test-18
+      - macos-test-12
+      - macos-test-14
+      - macos-test-16
+      - macos-test-18
+      - windows-test-12
+      - windows-test-14
+      - windows-test-16
+      - windows-test-18
     name: publish
     steps:
       - uses: actions/checkout@v2
