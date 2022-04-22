@@ -31,97 +31,99 @@ jobs:
       - uses: actions/checkout@v2
       - uses: ./.github/actions/prebuild
 
-  # macos-apple:
-  #   runs-on: macos-11
-  #   name: macos-apple
-  #   env:
-  #     ARCH: arm64
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - uses: ./.github/actions/prebuild
+  macos-apple:
+    runs-on: macos-11
+    name: macos-apple
+    env:
+      ARCH: arm64
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/prebuild
 
-  # macos-intel:
-  #   strategy:
-  #     matrix:
-  #       arch: ['ia32', 'x64']
-  #   runs-on: macos-10.15
-  #   name: macos-intel-${{ matrix.arch }}
-  #   env:
-  #     ARCH: ${{ matrix.arch }}
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - uses: ./.github/actions/prebuild
+  macos-intel:
+    strategy:
+      matrix:
+        arch: ['ia32', 'x64']
+    runs-on: macos-10.15
+    name: macos-intel-${{ matrix.arch }}
+    env:
+      ARCH: ${{ matrix.arch }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/prebuild
 
-  # windows:
-  #   strategy:
-  #     matrix:
-  #       arch: ['ia32', 'x64']
-  #   runs-on: windows-2019
-  #   name: windows-${{ matrix.arch }}
-  #   env:
-  #     NODE_VERSIONS: ${{ matrix.node }}
-  #     ARCH: ${{ matrix.arch }}
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - uses: ./.github/actions/prebuild
+  windows:
+    strategy:
+      matrix:
+        arch: ['ia32', 'x64']
+    runs-on: windows-2019
+    name: windows-${{ matrix.arch }}
+    env:
+      ARCH: ${{ matrix.arch }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/prebuild
 
   # Tests
 
-  # alpine-test:
-  #   strategy:
-  #     matrix:
-  #       node: [12, 14, 16, 18]
-  #   needs: linux
-  #   runs-on: ubuntu-latest
-  #   container:
-  #     image: node:${{ matrix.node }}-alpine
-  #   name: alpine-test-${{ matrix.node }}
-  #   steps:
-  #     - run: apk update && apk add bash
-  #     - uses: actions/checkout@v2
-  #     - uses: ./.github/actions/test
-
-  linux-test:
+  alpine-test:
     strategy:
       matrix:
         node: [12, 14, 16, 18]
     needs: linux
     runs-on: ubuntu-latest
-    name: linux-test-${{ matrix.node }}
+    container:
+      image: node:${{ matrix.node }}-alpine
+    name: alpine-test-${{ matrix.node }}
     steps:
-      - uses: actions/setup-node@v2
-        with:
-          node-version: ${{ matrix.node }}
+      - run: apk update && apk add bash
       - uses: actions/checkout@v2
       - uses: ./.github/actions/test
 
-  # macos-intel-test:
-  #   strategy:
-  #     matrix:
-  #       node: [12, 14, 16, 18]
-  #   needs: macos-intel
-  #   runs-on: macos-10.15
-  #   name: macos-intel-test-${{ matrix.node }}
-  #   steps:
-  #     - uses: actions/setup-node@v2
-  #       with:
-  #         node-version: ${{ matrix.node }}
-  #     - uses: actions/checkout@v2
-  #     - uses: ./.github/actions/test
+  linux-test:
+    needs: linux
+    runs-on: ubuntu-latest
+    name: linux-test-${{ matrix.node }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/node/12
+      - uses: ./.github/actions/test
+      - uses: ./.github/actions/node/14
+      - uses: ./.github/actions/test
+      - uses: ./.github/actions/node/16
+      - uses: ./.github/actions/test
+      - uses: ./.github/actions/node/18
+      - uses: ./.github/actions/test
 
-  # windows-test:
-  #   strategy:
-  #     matrix:
-  #       node: [12, 14, 16, 18]
-  #   needs: windows
-  #   runs-on: windows-2019
-  #   name: windows-test-${{ matrix.node }}
-  #   steps:
-  #     - uses: actions/setup-node@v2
-  #       with:
-  #         node-version: ${{ matrix.node }}
-  #     - uses: actions/checkout@v2
-  #     - uses: ./.github/actions/test
+  macos-intel-test:
+    needs: macos-intel
+    runs-on: macos-10.15
+    name: macos-intel-test-${{ matrix.node }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/node/12
+      - uses: ./.github/actions/test
+      - uses: ./.github/actions/node/14
+      - uses: ./.github/actions/test
+      - uses: ./.github/actions/node/16
+      - uses: ./.github/actions/test
+      - uses: ./.github/actions/node/18
+      - uses: ./.github/actions/test
+
+  windows-test:
+    needs: windows
+    runs-on: windows-2019
+    name: windows-test-${{ matrix.node }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/node/12
+      - uses: ./.github/actions/test
+      - uses: ./.github/actions/node/14
+      - uses: ./.github/actions/test
+      - uses: ./.github/actions/node/16
+      - uses: ./.github/actions/test
+      - uses: ./.github/actions/node/18
+      - uses: ./.github/actions/test
 
   # publish:
   #   runs-on: ubuntu-latest

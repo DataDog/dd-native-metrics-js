@@ -6,7 +6,6 @@ const fs = require('fs')
 const mkdirp = require('mkdirp')
 const execSync = require('child_process').execSync
 const semver = require('semver')
-const checksum = require('checksum')
 const rimraf = require('rimraf')
 
 const platform = os.platform()
@@ -56,11 +55,6 @@ function prebuildify () {
 
       execSync(cmd, { stdio: [0, 1, 2] })
 
-      const sum = checksum(fs.readFileSync('build/Release/metrics.node'), {
-        algorithm: 'sha256'
-      })
-
-      fs.writeFileSync(`${output}.sha256`, sum)
       fs.copyFileSync('build/Release/metrics.node', output)
     })
   }

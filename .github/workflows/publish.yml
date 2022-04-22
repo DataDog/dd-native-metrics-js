@@ -14,11 +14,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  publish:
+  npm:
     runs-on: ubuntu-latest
-    name: publish
+    environment: npm
     steps:
       - uses: actions/checkout@v2
       - uses: actions/download-artifact@v2
-      - run: yarn
       - run: ls -lisa prebuilds
