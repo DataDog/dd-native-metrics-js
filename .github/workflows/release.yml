@@ -23,3 +23,5 @@ jobs:
       - run: npm whoami
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: gh auth login
+      - run: git config user.name
