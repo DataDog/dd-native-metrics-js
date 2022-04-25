@@ -3,7 +3,7 @@ name: Release
 on:
   workflow_call:
     secrets:
-      NPM_TEST:
+      NPM_TOKEN:
         required: true
 
 concurrency:
@@ -20,9 +20,6 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           registry-url: 'https://registry.npmjs.org'
-      - run: echo $REPO_TEST
+      - run: whoami
         env:
-          REPO_TEST: ${{ secrets.REPO_TEST }}
-      - run: echo $NPM_TEST
-        env:
-          NPM_TEST: ${{ secrets.NPM_TEST }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -13,4 +13,4 @@ jobs:
     if: ${{ github.ref_name == 'npm-publish' }}
     # needs: [build]
     secrets:
-      NPM_TEST: ${{ secrets.NPM_TEST }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
