@@ -6,9 +6,9 @@ on:
     - cron: '0 4 * * *'
 
 jobs:
-  build:
-    uses: ./.github/workflows/build.yml
+  # build:
+  #   uses: ./.github/workflows/build.yml
   release:
     uses: ./.github/workflows/release.yml
-    if: ${{ contains(fromJSON('["v1.x", "npm-publish"]'), github.ref_name) }}
-    needs: [build]
+    if: ${{ github.ref_name === 'npm-publish' }}
+    # needs: [build]
