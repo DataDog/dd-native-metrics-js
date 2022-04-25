@@ -2,9 +2,9 @@ name: Release
 
 on:
   workflow_call:
-    # secrets:
-    #   npm_token:
-    #     required: true
+    secrets:
+      NPM_TOKEN:
+        required: true
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
@@ -14,8 +14,6 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     environment: npm
-    # with:
-    #   npm_token: ${{ env.NPM_TOKEN }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/download-artifact@v2
