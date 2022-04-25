@@ -25,4 +25,5 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
       - run: npm whoami
       - run: gh auth setup-git
-      - run: git config user.name
+      - run: git checkout -b test-a83f9b28
+      - run: git push -u origin test-a83f9b28
