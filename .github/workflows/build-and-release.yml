@@ -10,5 +10,5 @@ jobs:
   #   uses: ./.github/workflows/build.yml
   release:
     uses: ./.github/workflows/release.yml
-    if: ${{ github.ref_name === 'npm-publish' }}
+    if: ${{ github.ref_name == 'npm-publish' }}
     # needs: [build]
