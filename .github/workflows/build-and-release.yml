@@ -8,13 +8,13 @@ on:
 jobs:
   build:
     uses: Datadog/action-prebuildify/.github/workflows/build.yml@workflow
-  # test:
-  #   runs-on: ubuntu-latest
-  #   needs: [build]
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - run: ls -lisa
-  #     - run: ls -lisa ..
+  test:
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v2
+      - run: ls -lisa ..
+      - run: ls -lisa ../../_actions
   # release:
   #   uses: ./.github/workflows/release.yml
   #   if: ${{ github.ref_name == 'npm-publish' }}
