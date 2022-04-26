@@ -6,8 +6,14 @@ on:
     - cron: '0 4 * * *'
 
 jobs:
-  build:
-    uses: Datadog/action-prebuildify/.github/workflows/build.yml@workflow
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: ls -lisa
+      - run: ls -lisa ..
+  # build:
+  #   uses: Datadog/action-prebuildify/.github/workflows/build.yml@workflow
   # release:
   #   uses: ./.github/workflows/release.yml
   #   if: ${{ github.ref_name == 'npm-publish' }}
