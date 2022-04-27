@@ -1,6 +1,6 @@
 {
   "targets": [{
-    "target_name": "addon",
+    "target_name": "metrics",
     "sources": [
       "src/metrics/main.cpp"
     ],
