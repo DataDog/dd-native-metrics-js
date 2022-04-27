@@ -1,9 +1,0 @@
-runs:
-  using: composite
-  steps:
-    - uses: actions/download-artifact@v2
-    - run: rm -f binding.gyp
-      shell: bash
-    - uses: ./.github/actions/install
-    - run: yarn test
-      shell: bash
