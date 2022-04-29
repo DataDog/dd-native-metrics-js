@@ -102,4 +102,3 @@ typings/
 build
 prebuilds
 package-lock.json
-yarn.lock
