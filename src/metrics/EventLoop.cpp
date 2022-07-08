@@ -16,12 +16,14 @@ namespace datadog {
     check_time_ = uv_hrtime();
     prepare_time_ = check_time_;
     timeout_ = 0;
+    enabled_ = false;
 
     node::AddEnvironmentCleanupHook(isolate, delete_instance, this);
   }
 
   void EventLoop::check_cb (uv_check_t* handle) {
     EventLoop* self = (EventLoop*)handle->data;
+    if (!self->enabled_) return;
 
     uint64_t check_time = uv_hrtime();
     uint64_t poll_time = check_time - self->prepare_time_;
@@ -37,8 +39,9 @@ namespace datadog {
   }
 
   void EventLoop::prepare_cb (uv_prepare_t* handle) {
-    uv_loop_t* loop = Nan::GetCurrentEventLoop();
     EventLoop* self = (EventLoop*)handle->data;
+    if (!self->enabled_) return;
+    uv_loop_t* loop = Nan::GetCurrentEventLoop();
 
     self->prepare_time_ = uv_hrtime();
     self->timeout_ = uv_backend_timeout(loop);
@@ -55,11 +58,15 @@ namespace datadog {
   }
 
   void EventLoop::enable() {
+    if (enabled_) return;
+    enabled_ = true;
     uv_check_start(&check_handle_, &EventLoop::check_cb);
     uv_prepare_start(&prepare_handle_, &EventLoop::prepare_cb);
   }
 
   void EventLoop::disable() {
+    if (!enabled_) return;
+    enabled_ = false;
     uv_check_stop(&check_handle_);
     uv_prepare_stop(&prepare_handle_);
     histogram_.reset();
@@ -78,6 +85,7 @@ namespace datadog {
   void EventLoop::delete_instance(void* arg) {
     EventLoop* data = (static_cast<EventLoop*>(arg));
 
+    data->disable();
     data->close();
   }
 }

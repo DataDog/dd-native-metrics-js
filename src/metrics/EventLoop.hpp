@@ -44,6 +44,7 @@ namespace datadog {
       uint64_t prepare_time_;
       uint64_t timeout_;
       Histogram histogram_;
+      bool enabled_;
 
       uint64_t usage();
   };
