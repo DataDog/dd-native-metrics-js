@@ -2,7 +2,15 @@
   "targets": [{
     "target_name": "metrics",
     "sources": [
-      "src/metrics/main.cpp"
+      "src/metrics/utils.cpp",
+      "src/metrics/Process.cpp",
+      "src/metrics/Heap.cpp",
+      "src/metrics/GarbageCollection.cpp",
+      "src/metrics/Collector.cpp",
+      "src/metrics/EventLoop.cpp",
+      "src/metrics/Histogram.cpp",
+      "src/metrics/Object.cpp",
+      "src/metrics/main.cpp",
     ],
     "include_dirs": [
       "src",
