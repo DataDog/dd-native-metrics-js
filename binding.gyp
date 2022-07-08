@@ -2,7 +2,6 @@
   "targets": [{
     "target_name": "metrics",
     "sources": [
-      "src/metrics/utils.cpp",
       "src/metrics/Process.cpp",
       "src/metrics/Heap.cpp",
       "src/metrics/GarbageCollection.cpp",
