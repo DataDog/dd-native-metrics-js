@@ -106,7 +106,9 @@ describe('metrics', () => {
     })
   })
 
-  it('should support worker threads', done => {
+  it('should support worker threads', function (done) {
+    this.timeout(10000)
+
     const worker = new Worker(path.join(__dirname, 'worker.js'))
 
     worker.once('exit', code => {
