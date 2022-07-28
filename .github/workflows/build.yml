@@ -15,6 +15,7 @@ jobs:
 
   publish:
     if: github.ref == 'v1.x'
+    needs: build
     runs-on: ubuntu-latest
     environment: npm
     env:
