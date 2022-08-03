@@ -1,7 +1,10 @@
 name: Build
 
 on:
+  pull_request:
   push:
+    branches:
+      - main
   schedule:
     - cron: '0 4 * * *'
 
@@ -12,24 +15,3 @@ jobs:
       target-name: 'metrics'
       package-manager: 'yarn'
       cache: true
-
-  publish:
-    if: github.ref_name == 'v1.x'
-    needs: build
-    runs-on: ubuntu-latest
-    environment: npm
-    env:
-      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v3
-        with:
-          registry-url: 'https://registry.npmjs.org'
-      - run: npm publish
-      - id: pkg
-        run: |
-          content=`cat ./package.json | tr '\n' ' '`
-          echo "::set-output name=json::$content"
-      - run: |
-          git tag v${{ fromJson(steps.pkg.outputs.json).version }}
-          git push origin v${{ fromJson(steps.pkg.outputs.json).version }}
