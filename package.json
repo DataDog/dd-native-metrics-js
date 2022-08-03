@@ -8,6 +8,7 @@
   "license": "Apache-2.0",
   "homepage": "https://github.com/DataDog/dd-native-metrics-js#readme",
   "scripts": {
+    "install": "exit 0",
     "rebuild": "node-gyp rebuild",
     "lint": "node scripts/check_licenses.js && eslint .",
     "test": "mocha 'test/**/*.spec.js'"
