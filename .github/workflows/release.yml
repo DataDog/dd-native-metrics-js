@@ -5,18 +5,23 @@ on:
     branches:
       - v[0-9]+.x
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
-  cancel-in-progress: true
-
 jobs:
+  build:
+    uses: Datadog/action-prebuildify/.github/workflows/build.yml@main
+    with:
+      target-name: 'metrics'
+      package-manager: 'yarn'
+      cache: true
+
   publish:
+    needs: build
     runs-on: ubuntu-latest
     environment: npm
     env:
       NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v3
       - uses: actions/setup-node@v3
         with:
           registry-url: 'https://registry.npmjs.org'
