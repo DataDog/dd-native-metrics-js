@@ -1,7 +1,5 @@
 *
-!src/**/*
 !prebuilds/**/*
-!scripts/**/*
 !CONTRIBUTING.md
 !LICENSE
 !LICENSE-3rdparty.csv
