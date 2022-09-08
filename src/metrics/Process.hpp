@@ -8,6 +8,7 @@
 namespace datadog {
   class Process : public Collector {
     public:
+      Process();
       void enable();
       void disable();
       void inject(Object carrier);
@@ -15,6 +16,10 @@ namespace datadog {
       bool enabled_;
       uv_rusage_t usage_;
   };
+
+  Process::Process() {
+    uv_getrusage(&usage_);
+  }
 
   void Process::inject(Object carrier) {
     uv_rusage_t usage;
