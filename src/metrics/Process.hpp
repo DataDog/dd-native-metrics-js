@@ -18,7 +18,7 @@ namespace datadog {
   };
 
   Process::Process() {
-    uv_getrusage(&usage_);
+    memset(&usage_, 0, sizeof(usage_));
   }
 
   void Process::inject(Object carrier) {
