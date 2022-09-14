@@ -104,16 +104,21 @@ namespace datadog {
   void EventLoop::enable() {
     uv_check_start(&check_handle_, &EventLoop::check_cb);
     uv_prepare_start(&prepare_handle_, &EventLoop::prepare_cb);
+    gc.enable();
   }
 
   void EventLoop::disable() {
     uv_check_stop(&check_handle_);
     uv_prepare_stop(&prepare_handle_);
     histogram_.reset();
+    gc.disable();
   }
 
   void EventLoop::inject(Object carrier) {
     carrier.set("eventLoop", histogram_);
+    gc.inject(carrier);
+    process.inject(carrier);
+    heap.inject(carrier);
     histogram_.reset();
   }
 
