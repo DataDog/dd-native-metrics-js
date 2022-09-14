@@ -3,32 +3,16 @@
 
 namespace datadog {
   namespace {
-    void before_gc(v8::Isolate* isolate, v8::GCType type, v8::GCCallbackFlags flags, void* data) {
-      reinterpret_cast<EventLoop*>(data)->gc.before(type);
-    }
-
-    void after_gc(v8::Isolate* isolate, v8::GCType type, v8::GCCallbackFlags flags, void* data) {
-      reinterpret_cast<EventLoop*>(data)->gc.after(type);
-    }
-
     static void start(const v8::FunctionCallbackInfo<v8::Value>& info) {
       EventLoop* data = reinterpret_cast<EventLoop*>(info.Data().As<v8::External>()->Value());
-      v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
       data->enable();
-
-      isolate->AddGCPrologueCallback(before_gc, data);
-      isolate->AddGCEpilogueCallback(after_gc, data);
     }
 
     static void stop(const v8::FunctionCallbackInfo<v8::Value>& info) {
       EventLoop* data = reinterpret_cast<EventLoop*>(info.Data().As<v8::External>()->Value());
-      v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
       data->disable();
-
-      isolate->RemoveGCPrologueCallback(before_gc, data);
-      isolate->RemoveGCEpilogueCallback(after_gc, data);
     }
 
     static void stats(const v8::FunctionCallbackInfo<v8::Value>& info) {
@@ -36,11 +20,9 @@ namespace datadog {
       Object obj;
 
       data->inject(obj);
-      data->gc.inject(obj);
-      data->process.inject(obj);
-      data->heap.inject(obj);
 
-      info.GetReturnValue().Set(obj.to_json());
+      // Cast because V8 uses a template without type deduction support
+      info.GetReturnValue().Set(static_cast<v8::Local<v8::Value>>(obj));
     }
   }
 
