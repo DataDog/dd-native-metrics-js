@@ -15,12 +15,15 @@ namespace datadog {
     public:
       GarbageCollection();
 
+      void enable();
+      void disable();
+
       void before(v8::GCType type);
       void after(v8::GCType type);
       void inject(Object carrier);
     private:
       std::map<v8::GCType, Histogram> pause_;
-      std::map<unsigned char, std::string> types_;
+      std::map<unsigned char, const char*> types_;
       uint64_t start_time_;
   };
 
@@ -42,6 +45,28 @@ namespace datadog {
 #endif
 
     pause_[v8::GCType::kGCTypeAll] = Histogram();
+  }
+
+  void before_gc(v8::Isolate* isolate, v8::GCType type, v8::GCCallbackFlags flags, void* data) {
+    reinterpret_cast<GarbageCollection*>(data)->before(type);
+  }
+
+  void after_gc(v8::Isolate* isolate, v8::GCType type, v8::GCCallbackFlags flags, void* data) {
+    reinterpret_cast<GarbageCollection*>(data)->after(type);
+  }
+
+  void GarbageCollection::enable() {
+    v8::Isolate* isolate = v8::Isolate::GetCurrent();
+
+    isolate->AddGCPrologueCallback(before_gc, this);
+    isolate->AddGCEpilogueCallback(after_gc, this);
+  }
+
+  void GarbageCollection::disable() {
+    v8::Isolate* isolate = v8::Isolate::GetCurrent();
+
+    isolate->RemoveGCPrologueCallback(before_gc, this);
+    isolate->RemoveGCEpilogueCallback(after_gc, this);
   }
 
   void GarbageCollection::before(v8::GCType type) {
