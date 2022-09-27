@@ -19,11 +19,11 @@ describe('metrics', () => {
     const { cpu } = nativeMetrics.stats()
     const { user, system } = process.cpuUsage()
 
-    expect(cpu.user).to.be.greaterThan(user * 0.9)
-    expect(cpu.user).to.be.lessThanOrEqual(user)
+    expect(cpu.user).to.be.greaterThan(user * 0.5)
+    expect(cpu.user).to.be.lessThanOrEqual(user * 1.5)
 
-    expect(cpu.system).to.be.greaterThan(system * 0.9)
-    expect(cpu.system).to.be.lessThanOrEqual(system)
+    expect(cpu.system).to.be.greaterThan(system * 0.5)
+    expect(cpu.system).to.be.lessThanOrEqual(system * 1.5)
   })
 
   it('should collect stats', () => {
@@ -111,8 +111,8 @@ describe('metrics', () => {
       const stats = nativeMetrics.stats()
 
       expect(stats.eventLoop.count).to.be.gte(1)
-      expect(stats.eventLoop.max).to.be.gte(90 * 1e6)
-      expect(stats.eventLoop.sum).to.be.gte(90 * 1e6)
+      expect(stats.eventLoop.max).to.be.gte(50 * 1e6)
+      expect(stats.eventLoop.sum).to.be.gte(50 * 1e6)
 
       done()
     })
