@@ -6,7 +6,10 @@
     ],
     "include_dirs": [
       "src",
-      "<!(node -e \"require('nan')\")"
+      "<!@(node -p \"require('node-addon-api').include\")"
+    ],
+    "defines": [
+      "NAPI_DISABLE_CPP_EXCEPTIONS"
     ],
     "xcode_settings": {
       "MACOSX_DEPLOYMENT_TARGET": "10.10",

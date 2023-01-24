@@ -28,6 +28,7 @@
 #include <queue>
 #include <utility>
 #include <vector>
+#include <limits>
 
 namespace tdigest {
 
