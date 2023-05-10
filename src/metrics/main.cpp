@@ -1,52 +1,57 @@
+#include <napi.h>
+
 #include "EventLoop.hpp"
-#include "Object.hpp"
+#include "GarbageCollection.hpp"
+#include "Heap.hpp"
+#include "Process.hpp"
+
+using Napi::Addon;
+using Napi::CallbackInfo;
+using Napi::Env;
+using Napi::Object;
+using Napi::Value;
 
 namespace datadog {
-  namespace {
-    static void start(const v8::FunctionCallbackInfo<v8::Value>& info) {
-      EventLoop* data = reinterpret_cast<EventLoop*>(info.Data().As<v8::External>()->Value());
+  class NativeMetrics : public Addon<NativeMetrics> {
+    private:
+      Process processInfo;
+      GarbageCollection gcInfo;
+      Heap heapInfo;
+      // This needs to be a pointer so it can live longer than env for uv_close
+      EventLoop* loopInfo;
 
-      data->enable();
-    }
+      Value Start(const CallbackInfo& info) {
+        gcInfo.Enable();
+        loopInfo->Enable();
+        return info.Env().Undefined();
+      }
 
-    static void stop(const v8::FunctionCallbackInfo<v8::Value>& info) {
-      EventLoop* data = reinterpret_cast<EventLoop*>(info.Data().As<v8::External>()->Value());
+      Value Stop(const CallbackInfo& info) {
+        gcInfo.Disable();
+        loopInfo->Disable();
+        return info.Env().Undefined();
+      }
 
-      data->disable();
-    }
+      Value Stats(const CallbackInfo& info) {
+        Env env = info.Env();
+        Object obj = Object::New(env);
+        obj.Set("cpu", processInfo.ToJSON(env));
+        obj.Set("heap", heapInfo.ToJSON(env));
+        obj.Set("gc", gcInfo.ToJSON(env));
+        obj.Set("eventLoop", loopInfo->ToJSON(env));
+        return obj;
+      }
 
-    static void stats(const v8::FunctionCallbackInfo<v8::Value>& info) {
-      EventLoop* data = reinterpret_cast<EventLoop*>(info.Data().As<v8::External>()->Value());
-      Object obj;
+    public:
+      NativeMetrics(Env env, Object exports)
+        : loopInfo(new EventLoop(env)) {
+        DefineAddon(exports, {
+          InstanceMethod("start", &NativeMetrics::Start),
+          InstanceMethod("stop", &NativeMetrics::Stop),
+          InstanceMethod("stats", &NativeMetrics::Stats)
+        });
+      }
+  };
 
-      data->inject(obj);
-
-      // Cast because V8 uses a template without type deduction support
-      info.GetReturnValue().Set(static_cast<v8::Local<v8::Value>>(obj));
-    }
-  }
-
-  NODE_MODULE_INIT() {
-    v8::Isolate* isolate = context->GetIsolate();
-    EventLoop* data = new EventLoop(isolate);
-    v8::Local<v8::External> external = v8::External::New(isolate, data);
-
-    exports->Set(
-      context,
-      Nan::New("start").ToLocalChecked(),
-      v8::FunctionTemplate::New(isolate, start, external)->GetFunction(context).ToLocalChecked()
-    ).FromJust();
-
-    exports->Set(
-      context,
-      Nan::New("stop").ToLocalChecked(),
-      v8::FunctionTemplate::New(isolate, stop, external)->GetFunction(context).ToLocalChecked()
-    ).FromJust();
-
-    exports->Set(
-      context,
-      Nan::New("stats").ToLocalChecked(),
-      v8::FunctionTemplate::New(isolate, stats, external)->GetFunction(context).ToLocalChecked()
-    ).FromJust();
-  }
+  NODE_API_ADDON(NativeMetrics)
 }

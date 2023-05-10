@@ -3,24 +3,28 @@
 #include <map>
 #include <string>
 #include <stdint.h>
+
+#include <napi.h>
 #include <uv.h>
 #include <v8.h>
 
-#include "Collector.hpp"
 #include "Histogram.hpp"
-#include "Object.hpp"
+
+using Napi::Env;
+using Napi::Object;
+using Napi::Value;
 
 namespace datadog {
-  class GarbageCollection : public Collector {
+  class GarbageCollection {
     public:
       GarbageCollection();
 
-      void enable();
-      void disable();
+      void Enable();
+      void Disable();
 
       void before(v8::GCType type);
       void after(v8::GCType type);
-      void inject(Object carrier);
+      Value ToJSON(Env env);
     private:
       std::map<v8::GCType, Histogram> pause_;
       std::map<unsigned char, const char*> types_;
@@ -45,6 +49,7 @@ namespace datadog {
 #endif
 
     pause_[v8::GCType::kGCTypeAll] = Histogram();
+    start_time_ = uv_hrtime();
   }
 
   void before_gc(v8::Isolate* isolate, v8::GCType type, v8::GCCallbackFlags flags, void* data) {
@@ -55,14 +60,14 @@ namespace datadog {
     reinterpret_cast<GarbageCollection*>(data)->after(type);
   }
 
-  void GarbageCollection::enable() {
+  void GarbageCollection::Enable() {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
     isolate->AddGCPrologueCallback(before_gc, this);
     isolate->AddGCEpilogueCallback(after_gc, this);
   }
 
-  void GarbageCollection::disable() {
+  void GarbageCollection::Disable() {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
     isolate->RemoveGCPrologueCallback(before_gc, this);
@@ -84,14 +89,12 @@ namespace datadog {
     pause_[v8::GCType::kGCTypeAll].add(usage);
   }
 
-  void GarbageCollection::inject(Object carrier) {
-    Object value;
-
+  Value GarbageCollection::ToJSON(Env env) {
+    Object gc = Object::New(env);
     for (auto &it : pause_) {
-      value.set(types_[it.first], it.second);
+      gc.Set(types_[it.first], it.second.ToJSON(env));
       it.second.reset();
     }
-
-    carrier.set("gc", value);
+    return gc;
   }
 }

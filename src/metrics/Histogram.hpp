@@ -12,6 +12,12 @@
 #include <stdint.h>
 #include <tdigest/TDigest.h>
 
+#include <napi.h>
+
+using Napi::Env;
+using Napi::Object;
+using Napi::Value;
+
 namespace datadog {
   class Histogram {
     public:
@@ -26,6 +32,8 @@ namespace datadog {
 
       void reset();
       void add(uint64_t value);
+
+      Value ToJSON(Env env);
     private:
       uint64_t min_;
       uint64_t max_;
@@ -68,5 +76,19 @@ namespace datadog {
     sum_ += value;
 
     digest_->add(static_cast<tdigest::Value>(value));
+  }
+
+  Value Histogram::ToJSON(Env env) {
+    Object obj = Object::New(env);
+
+    obj.Set("min", min());
+    obj.Set("max", max());
+    obj.Set("sum", sum());
+    obj.Set("avg", avg());
+    obj.Set("count", count());
+    obj.Set("median", percentile(0.50));
+    obj.Set("p95", percentile(0.95));
+
+    return obj;
   }
 }

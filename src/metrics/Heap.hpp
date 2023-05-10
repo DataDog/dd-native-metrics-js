@@ -1,39 +1,38 @@
 #pragma once
 
-#include <string>
-#include <vector>
+#include <napi.h>
 #include <v8.h>
 
-#include "Collector.hpp"
-#include "Object.hpp"
+using Napi::Array;
+using Napi::Env;
+using Napi::Object;
+using Napi::Value;
 
 namespace datadog {
-  class Heap : public Collector {
+  class Heap {
     public:
-      void inject(Object carrier);
+      Value ToJSON(Env env);
   };
 
-  void Heap::inject(Object carrier) {
-    v8::Isolate *isolate = v8::Isolate::GetCurrent();
-    Object heap;
-    std::vector<Object> spaces;
+  Value Heap::ToJSON(Env env) {
+    v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    for (unsigned int i = 0; i < isolate->NumberOfHeapSpaces(); i++) {
-      Object space;
+    Array spaces = Array::New(env);
+    for (uint32_t i = 0; i < isolate->NumberOfHeapSpaces(); i++) {
       v8::HeapSpaceStatistics stats;
-
       if (isolate->GetHeapSpaceStatistics(&stats, i)) {
-        space.set("space_name", stats.space_name());
-        space.set("space_size", stats.space_size());
-        space.set("space_used_size", stats.space_used_size());
-        space.set("space_available_size", stats.space_available_size());
-        space.set("physical_space_size", stats.physical_space_size());
-
-        spaces.push_back(space);
+        Object space = Object::New(env);
+        space.Set("space_name", stats.space_name());
+        space.Set("space_size", stats.space_size());
+        space.Set("space_used_size", stats.space_used_size());
+        space.Set("space_available_size", stats.space_available_size());
+        space.Set("physical_space_size", stats.physical_space_size());
+        spaces.Set(i, space);
       }
     }
 
-    heap.set("spaces", spaces);
-    carrier.set("heap", heap);
+    Object heap = Object::New(env);
+    heap.Set("spaces", spaces);
+    return heap;
   }
 }
