@@ -12,6 +12,8 @@ jobs:
       target-name: 'metrics'
       package-manager: 'yarn'
       cache: true
+      min-node-version: 14
+      napi: true
 
   publish:
     needs: build
