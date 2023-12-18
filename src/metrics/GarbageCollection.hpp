@@ -95,9 +95,7 @@ namespace datadog {
     Object gc = Object::New(env);
     for (auto &it : pause_) {
       auto type = types_[it.first];
-      if (type != nullptr) {
-        gc.Set(type, it.second.ToJSON(env));
-      }
+      gc.Set(type ? type : "unknown", it.second.ToJSON(env));
       it.second.reset();
     }
     return gc;
