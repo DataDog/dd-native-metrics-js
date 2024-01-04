@@ -44,7 +44,7 @@ namespace datadog {
 
     public:
       NativeMetrics(Env env, Object exports)
-        : gcInfo(env), loopInfo(new EventLoop(env)) {
+        : loopInfo(new EventLoop(env)) {
         DefineAddon(exports, {
           InstanceMethod("start", &NativeMetrics::Start),
           InstanceMethod("stop", &NativeMetrics::Stop),
