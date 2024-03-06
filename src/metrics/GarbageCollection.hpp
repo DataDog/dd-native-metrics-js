@@ -13,11 +13,12 @@
 using Napi::Env;
 using Napi::Object;
 using Napi::Value;
+using Napi::VersionManagement;
 
 namespace datadog {
   class GarbageCollection {
     public:
-      GarbageCollection();
+      GarbageCollection(Env env);
 
       void Enable();
       void Disable();
@@ -31,22 +32,23 @@ namespace datadog {
       uint64_t start_time_;
   };
 
-  GarbageCollection::GarbageCollection() {
-#if NODE_MODULE_VERSION >= 108
-    types_[1] = "scavenge";
-    types_[2] = "minor_mark_compact";
-    types_[4] = "mark_sweep_compact";
-    types_[8] = "incremental_marking";
-    types_[16] = "process_weak_callbacks";
-    types_[31] = "all";
-#else
-    types_[1] = "scavenge";
-    types_[2] = "mark_sweep_compact";
-    types_[3] = "all";
-    types_[4] = "incremental_marking";
-    types_[8] = "process_weak_callbacks";
-    types_[15] = "all";
-#endif
+  GarbageCollection::GarbageCollection(Env env) {
+    auto version = VersionManagement::GetNodeVersion(env);
+    if (version->major >= 18) {
+      types_[1] = "scavenge";
+      types_[2] = "minor_mark_compact";
+      types_[4] = "mark_sweep_compact";
+      types_[8] = "incremental_marking";
+      types_[16] = "process_weak_callbacks";
+      types_[31] = "all";
+    } else {
+      types_[1] = "scavenge";
+      types_[2] = "mark_sweep_compact";
+      types_[3] = "all";
+      types_[4] = "incremental_marking";
+      types_[8] = "process_weak_callbacks";
+      types_[15] = "all";
+    }
 
     pause_[v8::GCType::kGCTypeAll] = Histogram();
     start_time_ = uv_hrtime();
@@ -92,7 +94,8 @@ namespace datadog {
   Value GarbageCollection::ToJSON(Env env) {
     Object gc = Object::New(env);
     for (auto &it : pause_) {
-      gc.Set(types_[it.first], it.second.ToJSON(env));
+      auto type = types_[it.first];
+      gc.Set(type ? type : "unknown", it.second.ToJSON(env));
       it.second.reset();
     }
     return gc;
