@@ -1,3 +1,4 @@
+#include <iostream>
 #include "EventLoop.hpp"
 #include "Object.hpp"
 
@@ -12,23 +13,27 @@ namespace datadog {
     }
 
     static void start(const v8::FunctionCallbackInfo<v8::Value>& info) {
-      EventLoop* data = reinterpret_cast<EventLoop*>(info.Data().As<v8::External>()->Value());
       v8::Isolate* isolate = v8::Isolate::GetCurrent();
+      EventLoop* data = reinterpret_cast<EventLoop*>(info.Data().As<v8::External>()->Value());
 
-      data->enable();
+      if (!data->is_enabled()) {
+        data->enable();
 
-      isolate->AddGCPrologueCallback(before_gc, data);
-      isolate->AddGCEpilogueCallback(after_gc, data);
+        isolate->AddGCPrologueCallback(before_gc, data);
+        isolate->AddGCEpilogueCallback(after_gc, data);
+      }
     }
 
     static void stop(const v8::FunctionCallbackInfo<v8::Value>& info) {
-      EventLoop* data = reinterpret_cast<EventLoop*>(info.Data().As<v8::External>()->Value());
       v8::Isolate* isolate = v8::Isolate::GetCurrent();
+      EventLoop* data = reinterpret_cast<EventLoop*>(info.Data().As<v8::External>()->Value());
 
-      data->disable();
+      if (data->is_enabled()) {
+        data->disable();
 
-      isolate->RemoveGCPrologueCallback(before_gc, data);
-      isolate->RemoveGCEpilogueCallback(after_gc, data);
+        isolate->RemoveGCPrologueCallback(before_gc, data);
+        isolate->RemoveGCEpilogueCallback(after_gc, data);
+      }
     }
 
     static void stats(const v8::FunctionCallbackInfo<v8::Value>& info) {

@@ -23,7 +23,7 @@
     "node": ">=12"
   },
   "dependencies": {
-    "nan": "^2.15.0",
+    "nan": "^2.20.0",
     "node-gyp-build": "^3.9.0"
   },
   "devDependencies": {
