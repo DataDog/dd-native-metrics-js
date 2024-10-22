@@ -29,6 +29,7 @@ namespace datadog {
 
       void enable();
       void disable();
+      bool is_enabled();
       void inject(Object carrier);
     protected:
       static void check_cb (uv_check_t* handle);
@@ -44,6 +45,7 @@ namespace datadog {
       uint64_t prepare_time_;
       uint64_t timeout_;
       Histogram histogram_;
+      bool enabled_ = false;
 
       uint64_t usage();
   };
@@ -102,14 +104,22 @@ namespace datadog {
   }
 
   void EventLoop::enable() {
+    if (enabled_) return;
     uv_check_start(&check_handle_, &EventLoop::check_cb);
     uv_prepare_start(&prepare_handle_, &EventLoop::prepare_cb);
+    enabled_ = true;
   }
 
   void EventLoop::disable() {
+    if (!enabled_) return;
     uv_check_stop(&check_handle_);
     uv_prepare_stop(&prepare_handle_);
     histogram_.reset();
+    enabled_ = false;
+  }
+
+  bool EventLoop::is_enabled() {
+    return enabled_;
   }
 
   void EventLoop::inject(Object carrier) {

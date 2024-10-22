@@ -14,6 +14,11 @@ describe('metrics', () => {
     nativeMetrics.stop()
   })
 
+  it('should handle stop twice', () => {
+    nativeMetrics.stop()
+    nativeMetrics.stop()
+  })
+
   it('should collect stats', () => {
     const stats = nativeMetrics.stats()
 
