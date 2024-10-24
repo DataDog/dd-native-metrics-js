@@ -80,6 +80,7 @@ namespace datadog {
     Object gc = Object::New(env);
 
     for (auto &it : pause_) {
+      printf("%u\n", it.first);
       auto type = this->ToType(env, it.first);
       gc.Set(type, it.second.ToJSON(env));
       it.second.reset();
