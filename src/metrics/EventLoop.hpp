@@ -23,7 +23,7 @@ namespace datadog {
       EventLoop(const EventLoop&) = delete;
       void operator=(const EventLoop&) = delete;
 
-      static void delete_instance(void* arg);
+      static void delete_instance(napi_async_cleanup_hook_handle handle, void* arg);
 
       void Enable();
       void Disable();
@@ -44,6 +44,7 @@ namespace datadog {
       uint64_t timeout_;
       Histogram histogram_;
       bool enabled_;
+      napi_async_cleanup_hook_handle remove_handle_;
 
       uint64_t usage();
   };
@@ -65,7 +66,7 @@ namespace datadog {
     timeout_ = 0;
     enabled_ = false;
 
-    env.AddCleanupHook(&EventLoop::delete_instance, this);
+    napi_add_async_cleanup_hook(env, &EventLoop::delete_instance, this, &remove_handle_);
   }
 
   void EventLoop::check_cb(uv_check_t* handle) {
@@ -100,6 +101,7 @@ namespace datadog {
     --self->handle_count_;
 
     if (self->handle_count_ == 0) {
+      napi_remove_async_cleanup_hook(self->remove_handle_);
       delete self;
     }
   }
@@ -130,7 +132,7 @@ namespace datadog {
     uv_close(reinterpret_cast<uv_handle_t*>(&prepare_handle_), &EventLoop::close_cb);
   }
 
-  void EventLoop::delete_instance(void* arg) {
+  void EventLoop::delete_instance(napi_async_cleanup_hook_handle handle, void* arg) {
     EventLoop* data = static_cast<EventLoop*>(arg);
 
     data->Disable();

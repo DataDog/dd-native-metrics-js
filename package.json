@@ -12,7 +12,7 @@
     "compile_commands": "node-gyp configure --release -- -f gyp.generator.compile_commands_json.py && mv Release/compile_commands.json ./",
     "rebuild": "node-gyp rebuild -j max",
     "lint": "node scripts/check_licenses.js && eslint .",
-    "test": "mocha 'test/**/*.spec.js'"
+    "test": "mocha 'test/**/*.spec.js' && node test/main"
   },
   "keywords": [
     "datadog",
