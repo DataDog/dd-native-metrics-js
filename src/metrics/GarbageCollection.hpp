@@ -92,6 +92,8 @@ namespace datadog {
     auto version = VersionManagement::GetNodeVersion(env);
     auto type_bit = static_cast<char>(type);
 
+    printf("major: %u\n", version->major);
+
     if (version->major >= 22) {
       switch (type_bit) {
         case 1: return "scavenge";
