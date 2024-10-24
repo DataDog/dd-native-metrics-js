@@ -7,6 +7,7 @@ const nativeMetrics = require('..')
 
 describe('metrics', () => {
   beforeEach(() => {
+    console.log('js:', process.version)
     nativeMetrics.start()
   })
 
