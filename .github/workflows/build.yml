@@ -17,3 +17,19 @@ jobs:
       cache: true
       min-node-version: 14
       napi: true
+
+  package-size:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+      - run: yarn
+      - name: Compute module size tree and report
+        uses: qard/heaviest-objects-in-the-universe@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
