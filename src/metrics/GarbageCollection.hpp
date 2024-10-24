@@ -13,6 +13,7 @@
 using Napi::Env;
 using Napi::Object;
 using Napi::Value;
+using Napi::VersionManagement;
 
 namespace datadog {
   class GarbageCollection {
@@ -27,28 +28,14 @@ namespace datadog {
       Value ToJSON(Env env);
     private:
       std::map<v8::GCType, Histogram> pause_;
+      Histogram pause_all_;
       std::map<unsigned char, const char*> types_;
       uint64_t start_time_;
+
+      const char* ToType(Env env, v8::GCType);
   };
 
   GarbageCollection::GarbageCollection() {
-#if NODE_MODULE_VERSION >= 108
-    types_[1] = "scavenge";
-    types_[2] = "minor_mark_compact";
-    types_[4] = "mark_sweep_compact";
-    types_[8] = "incremental_marking";
-    types_[16] = "process_weak_callbacks";
-    types_[31] = "all";
-#else
-    types_[1] = "scavenge";
-    types_[2] = "mark_sweep_compact";
-    types_[3] = "all";
-    types_[4] = "incremental_marking";
-    types_[8] = "process_weak_callbacks";
-    types_[15] = "all";
-#endif
-
-    pause_[v8::GCType::kGCTypeAll] = Histogram();
     start_time_ = uv_hrtime();
   }
 
@@ -86,15 +73,56 @@ namespace datadog {
     }
 
     pause_[type].add(usage);
-    pause_[v8::GCType::kGCTypeAll].add(usage);
+    pause_all_.add(usage);
   }
 
   Value GarbageCollection::ToJSON(Env env) {
     Object gc = Object::New(env);
+
     for (auto &it : pause_) {
-      gc.Set(types_[it.first], it.second.ToJSON(env));
+      auto type = this->ToType(env, it.first);
+      gc.Set(type, it.second.ToJSON(env));
       it.second.reset();
     }
+
+    gc.Set("all", pause_all_.ToJSON(env));
+    pause_all_.reset();
+
     return gc;
+  }
+
+  const char* GarbageCollection::ToType(Env env, v8::GCType type) {
+    auto version = VersionManagement::GetNodeVersion(env);
+    auto type_bit = static_cast<char>(type);
+
+    if (version->major >= 22) {
+      switch (type_bit) {
+        case 1: return "scavenge";
+        case 2: return "minor_mark_sweep";
+        case 4: return "mark_sweep_compact"; // Deprecated, might be removed soon.
+        case 8: return "incremental_marking";
+        case 16: return "process_weak_callbacks";
+        case 31: return "all";
+      }
+    } else if (version->major >= 18) {
+      switch (type_bit) {
+        case 1: return "scavenge";
+        case 2: return "minor_mark_compact";
+        case 4: return "mark_sweep_compact";
+        case 8: return "incremental_marking";
+        case 16: return "process_weak_callbacks";
+        case 31: return "all";
+      }
+    } else {
+      switch (type_bit) {
+        case 1: return "scavenge";
+        case 2: return "mark_sweep_compact";
+        case 4: return "incremental_marking";
+        case 8: return "process_weak_callbacks";
+        case 15: return "all";
+      }
+    }
+
+    return "unknown";
   }
 }
