@@ -80,7 +80,6 @@ namespace datadog {
     Object gc = Object::New(env);
 
     for (auto &it : pause_) {
-      printf("%u\n", it.first);
       auto type = this->ToType(env, it.first);
       gc.Set(type, it.second.ToJSON(env));
       it.second.reset();
@@ -95,8 +94,6 @@ namespace datadog {
   const char* GarbageCollection::ToType(Env env, v8::GCType type) {
     auto version = VersionManagement::GetNodeVersion(env);
     auto type_bit = static_cast<char>(type);
-
-    printf("major: %u\n", version->major);
 
     if (version->major >= 22) {
       switch (type_bit) {

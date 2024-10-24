@@ -7,7 +7,6 @@ const nativeMetrics = require('..')
 
 describe('metrics', () => {
   beforeEach(() => {
-    console.log('js:', process.version)
     nativeMetrics.start()
   })
 
@@ -54,7 +53,6 @@ describe('metrics', () => {
     expect(stats.eventLoop).to.have.property('p95')
     expect(stats.eventLoop.p95).to.be.a('number')
 
-    console.log(stats.gc)
     expect(stats).to.have.property('gc')
     expect(stats.gc).to.have.property('all')
     expect(stats.gc).to.not.have.property('unknown')
