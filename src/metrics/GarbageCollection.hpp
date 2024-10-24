@@ -28,6 +28,7 @@ namespace datadog {
       Value ToJSON(Env env);
     private:
       std::map<v8::GCType, Histogram> pause_;
+      Histogram pause_all_;
       std::map<unsigned char, const char*> types_;
       uint64_t start_time_;
 
@@ -35,7 +36,6 @@ namespace datadog {
   };
 
   GarbageCollection::GarbageCollection() {
-    pause_[v8::GCType::kGCTypeAll] = Histogram();
     start_time_ = uv_hrtime();
   }
 
@@ -73,7 +73,7 @@ namespace datadog {
     }
 
     pause_[type].add(usage);
-    pause_[v8::GCType::kGCTypeAll].add(usage);
+    pause_all_.add(usage);
   }
 
   Value GarbageCollection::ToJSON(Env env) {
@@ -85,6 +85,10 @@ namespace datadog {
       gc.Set(type, it.second.ToJSON(env));
       it.second.reset();
     }
+
+    gc.Set("all", pause_all_.ToJSON(env));
+    pause_all_.reset();
+
     return gc;
   }
 
