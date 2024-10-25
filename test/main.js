@@ -3,8 +3,10 @@
 const path = require('path')
 const { Worker } = require('worker_threads')
 
-const worker = new Worker(path.join(__dirname, 'worker.js'))
+for (let i = 0; i < 100; i++) {
+  const worker = new Worker(path.join(__dirname, 'worker.js'))
 
-setTimeout(() => {
-  worker.terminate()
-}, 1000)
+  setTimeout(() => {
+    worker.terminate()
+  }, 1000)
+}
