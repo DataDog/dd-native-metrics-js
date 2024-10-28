@@ -19,6 +19,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     environment: npm
+    permissions:
+      contents: write
     env:
       NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
