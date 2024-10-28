@@ -27,6 +27,8 @@ describe('metrics', () => {
   })
 
   it('should collect stats', () => {
+    globalThis.gc()
+
     const stats = nativeMetrics.stats()
 
     expect(stats).to.have.property('cpu')
@@ -53,6 +55,7 @@ describe('metrics', () => {
 
     expect(stats).to.have.property('gc')
     expect(stats.gc).to.have.property('all')
+    expect(stats.gc).to.not.have.property('unknown')
     expect(stats.gc.all).to.have.property('min')
     expect(stats.gc.all.min).to.be.a('number')
     expect(stats.gc.all).to.have.property('max')
