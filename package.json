@@ -20,7 +20,7 @@
     "apm"
   ],
   "engines": {
-    "node": ">=12"
+    "node": ">=16"
   },
   "dependencies": {
     "node-addon-api": "^6.1.0",
