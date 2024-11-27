@@ -15,19 +15,20 @@ namespace datadog {
   class NativeMetrics : public Addon<NativeMetrics> {
     private:
       Process processInfo;
-      GarbageCollection gcInfo;
       Heap heapInfo;
+      // This needs to be a pointer so it can free itself after the cleanup hook
+      GarbageCollection* gcInfo;
       // This needs to be a pointer so it can live longer than env for uv_close
       EventLoop* loopInfo;
 
       Value Start(const CallbackInfo& info) {
-        gcInfo.Enable();
+        gcInfo->Enable();
         loopInfo->Enable();
         return info.Env().Undefined();
       }
 
       Value Stop(const CallbackInfo& info) {
-        gcInfo.Disable();
+        gcInfo->Disable();
         loopInfo->Disable();
         return info.Env().Undefined();
       }
@@ -37,14 +38,14 @@ namespace datadog {
         Object obj = Object::New(env);
         obj.Set("cpu", processInfo.ToJSON(env));
         obj.Set("heap", heapInfo.ToJSON(env));
-        obj.Set("gc", gcInfo.ToJSON(env));
+        obj.Set("gc", gcInfo->ToJSON(env));
         obj.Set("eventLoop", loopInfo->ToJSON(env));
         return obj;
       }
 
     public:
       NativeMetrics(Env env, Object exports)
-        : loopInfo(new EventLoop(env)) {
+        : gcInfo(new GarbageCollection(env)), loopInfo(new EventLoop(env)) {
         DefineAddon(exports, {
           InstanceMethod("start", &NativeMetrics::Start),
           InstanceMethod("stop", &NativeMetrics::Stop),
