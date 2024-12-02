@@ -28,7 +28,7 @@ describe('metrics', () => {
     })
 
     it('should collect stats', done => {
-      setTimeout(() => {
+      setImmediate(() => {
         globalThis.gc()
 
         const stats = nativeMetrics.stats()
