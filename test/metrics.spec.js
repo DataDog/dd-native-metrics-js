@@ -178,7 +178,7 @@ describe('metrics', () => {
     })
 
     it('should collect only event loop stats', done => {
-      setTimeout(() => {
+      setImmediate(() => {
         globalThis.gc()
 
         const stats = nativeMetrics.stats()
@@ -202,7 +202,7 @@ describe('metrics', () => {
     })
 
     it('should collect only gc stats', done => {
-      setTimeout(() => {
+      setImmediate(() => {
         globalThis.gc()
 
         const stats = nativeMetrics.stats()
@@ -226,7 +226,7 @@ describe('metrics', () => {
     })
 
     it('should collect stats for multiple watchers', done => {
-      setTimeout(() => {
+      setImmediate(() => {
         globalThis.gc()
 
         const stats = nativeMetrics.stats()
