@@ -21,8 +21,20 @@ namespace datadog {
       EventLoop* loopInfo;
 
       Value Start(const CallbackInfo& info) {
-        gcInfo.Enable();
-        loopInfo->Enable();
+        if (info.Length() > 0) { // Enable only selected watchers
+          for (size_t i = 0; i < info.Length(); i++) {
+            std::string watcher = info[i].As<Napi::String>().Utf8Value();
+
+            if (watcher == "loop") {
+              loopInfo->Enable();
+            } else if (watcher == "gc") {
+              gcInfo.Enable();
+            }
+          }
+        } else { // Enable all watchers
+          gcInfo.Enable();
+          loopInfo->Enable();
+        }
         return info.Env().Undefined();
       }
 
