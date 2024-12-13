@@ -31,12 +31,14 @@ namespace datadog {
       Histogram pause_all_;
       std::map<unsigned char, const char*> types_;
       uint64_t start_time_;
+      bool enabled_;
 
       const char* ToType(Env env, v8::GCType);
   };
 
   GarbageCollection::GarbageCollection() {
     start_time_ = uv_hrtime();
+    enabled_ = false;
   }
 
   void before_gc(v8::Isolate* isolate, v8::GCType type, v8::GCCallbackFlags flags, void* data) {
@@ -48,6 +50,10 @@ namespace datadog {
   }
 
   void GarbageCollection::Enable() {
+    if (enabled_) return void();
+
+    enabled_ = true;
+
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
     isolate->AddGCPrologueCallback(before_gc, this);
@@ -55,10 +61,19 @@ namespace datadog {
   }
 
   void GarbageCollection::Disable() {
+    if (!enabled_) return void();
+
+    enabled_ = false;
+
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
     isolate->RemoveGCPrologueCallback(before_gc, this);
     isolate->RemoveGCEpilogueCallback(after_gc, this);
+
+    pause_.clear();
+    pause_all_.reset();
+    types_.clear();
+    start_time_ = 0;
   }
 
   void GarbageCollection::before(v8::GCType type) {
