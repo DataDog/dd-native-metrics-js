@@ -9,6 +9,7 @@
 #include <v8.h>
 
 #include "Histogram.hpp"
+#include "general-regs-only.hpp"
 
 using Napi::Env;
 using Napi::Object;
@@ -91,7 +92,7 @@ namespace datadog {
     pause_all_.add(usage);
   }
 
-  Value GarbageCollection::ToJSON(Env env) {
+  Value GarbageCollection::ToJSON(Env env) GENERAL_REGS_ONLY {
     Object gc = Object::New(env);
 
     for (auto &it : pause_) {
