@@ -92,7 +92,7 @@ namespace datadog {
     pause_all_.add(usage);
   }
 
-  Value GarbageCollection::ToJSON(Env env) GENERAL_REGS_ONLY {
+  GENERAL_REGS_ONLY Value GarbageCollection::ToJSON(Env env) {
     Object gc = Object::New(env);
 
     for (auto &it : pause_) {
