@@ -3,8 +3,6 @@
 #include <napi.h>
 #include <v8.h>
 
-#include "general-regs-only.hpp"
-
 using Napi::Array;
 using Napi::Env;
 using Napi::Object;
@@ -16,7 +14,7 @@ namespace datadog {
       Value ToJSON(Env env);
   };
 
-  Value Heap::ToJSON(Env env) GENERAL_REGS_ONLY {
+  Value Heap::ToJSON(Env env) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
     Array spaces = Array::New(env);
