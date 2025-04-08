@@ -4,7 +4,6 @@
 #include "GarbageCollection.hpp"
 #include "Heap.hpp"
 #include "Process.hpp"
-#include "general-regs-only.hpp"
 
 using Napi::Addon;
 using Napi::CallbackInfo;
@@ -21,7 +20,7 @@ namespace datadog {
       // This needs to be a pointer so it can live longer than env for uv_close
       EventLoop* loopInfo;
 
-      GENERAL_REGS_ONLY Value Start(const CallbackInfo& info) {
+      Value Start(const CallbackInfo& info) {
         if (info.Length() > 0) { // Enable only selected watchers
           for (size_t i = 0; i < info.Length(); i++) {
             std::string watcher = info[i].As<Napi::String>().Utf8Value();
