@@ -109,6 +109,9 @@ namespace datadog {
   void EventLoop::Enable() {
     if (enabled_) return;
     enabled_ = true;
+    check_time_ = uv_hrtime();
+    prepare_time_ = check_time_;
+
     uv_check_start(&check_handle_, &EventLoop::check_cb);
     uv_prepare_start(&prepare_handle_, &EventLoop::prepare_cb);
   }

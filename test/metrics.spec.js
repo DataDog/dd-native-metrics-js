@@ -170,6 +170,28 @@ describe('metrics', () => {
         return Promise.all(promises).then(callback)
       }
     })
+
+    it('should not count time disabled as event loop latency', done => {
+      nativeMetrics.stop()
+      nativeMetrics.stats()
+
+      const sab = new SharedArrayBuffer(16)
+      const typedArray = new Int32Array(sab)
+
+      Atomics.wait(typedArray, 0, 0, 100)
+
+      nativeMetrics.start()
+
+      setImmediate(() => {
+        const stats = nativeMetrics.stats()
+
+        expect(stats.eventLoop.count).to.be.gte(1)
+        expect(stats.eventLoop.max).to.be.lte(50 * 1e6)
+        expect(stats.eventLoop.sum).to.be.lte(50 * 1e6)
+        
+        done()
+      })
+    })
   })
 
   describe('with loop watcher specified', () => {
