@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "node-addon-api": "^6.1.0",
-    "node-gyp-build": "^3.9.0"
+    "node-gyp-build": "^4.8.4"
   },
   "devDependencies": {
     "chai": "^4.3.4",
