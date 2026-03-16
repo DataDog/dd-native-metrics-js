@@ -10,7 +10,7 @@ jobs:
   label:
     runs-on: ubuntu-latest
     steps:
-      - uses: mheap/github-action-required-labels@v1
+      - uses: mheap/github-action-required-labels@d2892166405e47deea29d2052ab4cca1382df41e # v1.2.0
         with:
           mode: exactly
           count: 1
