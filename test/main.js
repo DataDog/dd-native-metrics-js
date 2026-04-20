@@ -1,12 +1,17 @@
 'use strict'
 
-const path = require('path')
-const { Worker } = require('worker_threads')
+const tests = [
+  require('./worker-termination'),
+  require('./crash-repro')
+]
 
-for (let i = 0; i < 10; i++) {
-  const worker = new Worker(path.join(__dirname, 'worker.js'))
-
-  setTimeout(() => {
-    worker.terminate()
-  }, 1000)
+async function main () {
+  for (const test of tests) {
+    await test.run()
+  }
 }
+
+main().catch((err) => {
+  console.error(err)
+  process.exit(1)
+})
