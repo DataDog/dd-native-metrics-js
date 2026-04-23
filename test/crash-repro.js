@@ -3,10 +3,6 @@
 const path = require('path')
 const { Worker } = require('worker_threads')
 
-// Preload the native module in the main thread so worker threads don't
-// race on first dlopen/NAPI registration when spawned concurrently.
-require('..')
-
 const WORKER_PATH = path.join(__dirname, 'crash-repro-worker.js')
 const CONCURRENCY = Number(process.env.REPRO_CONCURRENCY) || 16
 const DURATION_MS = Number(process.env.REPRO_DURATION_MS) || 5000
