@@ -20,14 +20,19 @@ jobs:
     runs-on: ubuntu-latest
     environment: npm
     permissions:
+      id-token: write # Required for OIDC
       contents: write
-    env:
-      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
+      - uses: DataDog/dd-octo-sts-action@96a25462dbcb10ebf0bfd6e2ccc917d2ab235b9a # v1.0.4
+        id: octo-sts
+        with:
+          scope: DataDog/dd-native-metrics-js
+          policy: self.github.release.push-tags
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
       - uses: actions/setup-node@v4
         with:
+          node-version: '24'
           registry-url: 'https://registry.npmjs.org'
       - run: npm publish
       - id: pkg
@@ -36,4 +41,4 @@ jobs:
           echo "json=$content" >> "$GITHUB_OUTPUT"
       - run: |
           git tag v${{ fromJson(steps.pkg.outputs.json).version }}
-          git push origin v${{ fromJson(steps.pkg.outputs.json).version }}
+          git push https://x-access-token:${{ steps.octo-sts.outputs.token }}@github.com/${{ github.repository }}.git v${{ fromJson(steps.pkg.outputs.json).version }}
