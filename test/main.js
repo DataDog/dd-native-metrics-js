@@ -1,12 +1,8 @@
 'use strict'
 
-const path = require('path')
-const { Worker } = require('worker_threads')
+// Preload the native module in the main thread so worker threads don't
+// race on first dlopen/NAPI registration when spawned concurrently.
+require('..')
 
-for (let i = 0; i < 10; i++) {
-  const worker = new Worker(path.join(__dirname, 'worker.js'))
-
-  setTimeout(() => {
-    worker.terminate()
-  }, 1000)
-}
+require('./worker-termination')
+require('./crash-repro')

@@ -9,7 +9,8 @@
       "<!@(node -p \"require('node-addon-api').include\")"
     ],
     "defines": [
-      "NAPI_DISABLE_CPP_EXCEPTIONS"
+      "NAPI_DISABLE_CPP_EXCEPTIONS",
+      "NODE_API_SWALLOW_UNTHROWABLE_EXCEPTIONS"
     ],
     "xcode_settings": {
       "MACOSX_DEPLOYMENT_TARGET": "10.10",
