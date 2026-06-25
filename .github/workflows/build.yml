@@ -24,10 +24,13 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v7
+        with:
+          name: prebuilds
+          path: prebuilds
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
       - run: yarn
       - name: Compute module size tree and report
         uses: qard/heaviest-objects-in-the-universe@v1
