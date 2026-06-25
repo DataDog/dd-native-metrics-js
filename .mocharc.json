@@ -1,0 +1,4 @@
+{
+  "node-option": ["expose-gc"],
+  "spec": "test/**/*.spec.js"
+}
