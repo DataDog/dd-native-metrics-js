@@ -3,6 +3,7 @@
   "version": "2.0.0-pre",
   "description": "Native metrics collector for libuv and v8",
   "main": "index.js",
+  "gypfile": false,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/DataDog/dd-native-metrics-js.git"
@@ -11,7 +12,6 @@
   "license": "Apache-2.0",
   "homepage": "https://github.com/DataDog/dd-native-metrics-js#readme",
   "scripts": {
-    "install": "exit 0",
     "compile_commands": "node-gyp configure --release -- -f gyp.generator.compile_commands_json.py && mv Release/compile_commands.json ./",
     "rebuild": "node-gyp rebuild -j max",
     "lint": "node scripts/check_licenses.js && eslint .",

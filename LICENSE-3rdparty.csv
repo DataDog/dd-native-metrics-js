@@ -1,5 +1,5 @@
 Component,Origin,License,Copyright
-require,nan,MIT,Copyright 2018 NAN contributors
+require,node-addon-api,MIT,Copyright 2017 Node.js API collaborators
 require,node-gyp-build,MIT,Copyright 2017 Mathias Buus
 dev,chai,MIT,Copyright 2017 Chai.js Assertion Library
 dev,eslint,MIT,Copyright JS Foundation and other contributors https://js.foundation
