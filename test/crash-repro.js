@@ -17,6 +17,7 @@ let inflight = 0
 function churn () {
   if (Date.now() >= deadline) {
     if (inflight === 0) {
+      // eslint-disable-next-line no-console
       console.log(`no crash after ${DURATION_MS}ms: spawned=${spawned} terminated=${terminated}`)
     }
     return

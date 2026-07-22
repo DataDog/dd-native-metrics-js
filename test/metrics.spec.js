@@ -188,7 +188,7 @@ describe('metrics', () => {
         expect(stats.eventLoop.count).to.be.gte(1)
         expect(stats.eventLoop.max).to.be.lte(50 * 1e6)
         expect(stats.eventLoop.sum).to.be.lte(50 * 1e6)
-        
+
         done()
       })
     })
