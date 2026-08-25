@@ -18,12 +18,8 @@ using Napi::VersionManagement;
 namespace datadog {
   class GarbageCollection {
     public:
-      explicit GarbageCollection(Env env);
-      virtual ~GarbageCollection() = default;
-      GarbageCollection(const GarbageCollection&) = delete;
-      void operator=(const GarbageCollection&) = delete;
-
-      static void delete_instance(napi_async_cleanup_hook_handle handle, void* arg);
+      GarbageCollection();
+      ~GarbageCollection();
 
       void Enable();
       void Disable();
@@ -31,24 +27,23 @@ namespace datadog {
       void before(v8::GCType type);
       void after(v8::GCType type);
       Value ToJSON(Env env);
-    protected:
-      void Close();
     private:
       std::map<v8::GCType, Histogram> pause_;
       Histogram pause_all_;
-      std::map<unsigned char, std::string> types_;
+      std::map<unsigned char, const char*> types_;
       uint64_t start_time_;
       bool enabled_;
-      napi_async_cleanup_hook_handle remove_handle_;
 
-      const std::string ToType(Env env, v8::GCType);
+      const char* ToType(Env env, v8::GCType);
   };
 
-  GarbageCollection::GarbageCollection(Env env) {
+  GarbageCollection::GarbageCollection() {
     start_time_ = uv_hrtime();
     enabled_ = false;
+  }
 
-    napi_add_async_cleanup_hook(env, &GarbageCollection::delete_instance, this, &remove_handle_);
+  GarbageCollection::~GarbageCollection() {
+    Disable();
   }
 
   void before_gc(v8::Isolate* isolate, v8::GCType type, v8::GCCallbackFlags flags, void* data) {
@@ -60,7 +55,8 @@ namespace datadog {
   }
 
   void GarbageCollection::Enable() {
-    if (enabled_) return;
+    if (enabled_) return void();
+
     enabled_ = true;
 
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -70,7 +66,8 @@ namespace datadog {
   }
 
   void GarbageCollection::Disable() {
-    if (!enabled_) return;
+    if (!enabled_) return void();
+
     enabled_ = false;
 
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -114,20 +111,7 @@ namespace datadog {
     return gc;
   }
 
-  void GarbageCollection::delete_instance(napi_async_cleanup_hook_handle handle, void* arg) {
-    GarbageCollection* data = static_cast<GarbageCollection*>(arg);
-
-    data->Disable();
-    data->Close();
-  }
-
-  void GarbageCollection::Close() {
-    napi_remove_async_cleanup_hook(remove_handle_);
-
-    delete this;
-  }
-
-  const std::string GarbageCollection::ToType(Env env, v8::GCType type) {
+  const char* GarbageCollection::ToType(Env env, v8::GCType type) {
     auto version = VersionManagement::GetNodeVersion(env);
     auto type_bit = static_cast<char>(type);
 
