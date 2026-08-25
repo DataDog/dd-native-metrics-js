@@ -1,11 +1,16 @@
 'use strict'
 
-const { expect } = require('chai')
 const path = require('path')
 const { Worker } = require('worker_threads')
 const nativeMetrics = require('..')
 
+let expect
+
 describe('metrics', () => {
+  before(async () => {
+    ({ expect } = await import('chai'))
+  })
+
   afterEach(() => {
     nativeMetrics.stop()
   })
@@ -147,11 +152,13 @@ describe('metrics', () => {
 
       return testManyThreads(20, 25)
 
-      function testManyThreads (concurrency, runs, current = 1) {
+      /**
+       * @param {number} concurrency
+       * @param {number} runs
+       * @param {number} current
+       */
+      async function testManyThreads (concurrency, runs, current = 1) {
         const promises = []
-        const callback = runs > current
-          ? () => testManyThreads(concurrency, runs, current + 1)
-          : () => {}
 
         for (let i = 0; i < concurrency; i++) {
           const promise = new Promise((resolve, reject) => {
@@ -167,7 +174,11 @@ describe('metrics', () => {
           promises.push(promise)
         }
 
-        return Promise.all(promises).then(callback)
+        await Promise.all(promises)
+
+        if (runs > current) {
+          await testManyThreads(concurrency, runs, current + 1)
+        }
       }
     })
 

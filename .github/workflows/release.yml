@@ -10,9 +10,9 @@ jobs:
     uses: Datadog/action-prebuildify/.github/workflows/build.yml@main
     with:
       target-name: 'metrics'
-      package-manager: 'yarn'
+      package-manager: 'npm'
       cache: true
-      min-node-version: 18
+      min-node-version: 20.19
       napi: true
 
   publish:

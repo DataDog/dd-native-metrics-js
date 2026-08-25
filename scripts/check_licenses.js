@@ -35,7 +35,7 @@ lineReader.on('line', line => {
 
 lineReader.on('close', () => {
   if (!checkLicenses(deps, 'require') || !checkLicenses(devDeps, 'dev')) {
-    process.exit(1)
+    process.exitCode = 1
   }
 })
 

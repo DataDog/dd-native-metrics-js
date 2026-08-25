@@ -13,9 +13,9 @@ jobs:
     uses: Datadog/action-prebuildify/.github/workflows/build.yml@main
     with:
       target-name: 'metrics'
-      package-manager: 'yarn'
+      package-manager: 'npm'
       cache: true
-      min-node-version: 18
+      min-node-version: 20.19
       napi: true
 
   package-size:
@@ -31,7 +31,9 @@ jobs:
           path: prebuilds
       - name: Setup Node.js
         uses: actions/setup-node@v6
-      - run: yarn
+        with:
+          node-version: '22'
+      - run: npm ci
       - name: Compute module size tree and report
         uses: qard/heaviest-objects-in-the-universe@v1
         with:

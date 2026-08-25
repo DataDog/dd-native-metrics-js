@@ -1,22 +1,31 @@
 'use strict'
 
-const { expect } = require('chai')
 const metrics = require('..')
 
-metrics.start()
+async function run () {
+  const { expect } = await import('chai')
 
-const sab = new SharedArrayBuffer(16)
-const typedArray = new Int32Array(sab)
+  metrics.start()
 
-Atomics.wait(typedArray, 0, 0, 100)
+  const sab = new SharedArrayBuffer(16)
+  const typedArray = new Int32Array(sab)
 
-setImmediate(() => {
-  const stats = metrics.stats()
+  Atomics.wait(typedArray, 0, 0, 100)
 
-  expect(stats.eventLoop.count).to.equal(1)
+  setImmediate(() => {
+    const stats = metrics.stats()
 
-  // Check for 50ms instead of 100ms because it's not precise.
-  expect(stats.eventLoop.min).to.be.gte(50 * 1e6).and.lte(500 * 1e7)
-  expect(stats.eventLoop.max).to.be.gte(50 * 1e6).and.lte(500 * 1e7)
-  expect(stats.eventLoop.sum).to.be.gte(50 * 1e6).and.lte(500 * 1e7)
+    expect(stats.eventLoop.count).to.equal(1)
+
+    // Check for 50ms instead of 100ms because it's not precise.
+    expect(stats.eventLoop.min).to.be.gte(50 * 1e6).and.lte(500 * 1e7)
+    expect(stats.eventLoop.max).to.be.gte(50 * 1e6).and.lte(500 * 1e7)
+    expect(stats.eventLoop.sum).to.be.gte(50 * 1e6).and.lte(500 * 1e7)
+  })
+}
+
+run().catch(error => {
+  process.nextTick(() => {
+    throw error
+  })
 })
