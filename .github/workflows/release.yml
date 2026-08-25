@@ -21,7 +21,7 @@ jobs:
     environment: npm
     permissions:
       id-token: write # Required for OIDC
-      contents: write
+      contents: read
     steps:
       - uses: DataDog/dd-octo-sts-action@96a25462dbcb10ebf0bfd6e2ccc917d2ab235b9a # v1.0.4
         id: octo-sts
@@ -29,6 +29,8 @@ jobs:
           scope: DataDog/dd-native-metrics-js
           policy: self.github.release.push-tags
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false # use the STS token for the protected tag push
       - uses: actions/download-artifact@v7
         with:
           name: prebuilds
