@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    uses: Datadog/action-prebuildify/.github/workflows/build.yml@main
+    uses: Datadog/action-prebuildify/.github/workflows/build.yml@53d7646c481ba6c256b4c10ef537682bf86ba958 # main
     with:
       target-name: 'metrics'
       package-manager: 'yarn'
@@ -28,14 +28,14 @@ jobs:
         with:
           scope: DataDog/dd-native-metrics-js
           policy: self.github.release.push-tags
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false # use the STS token for the protected tag push
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: prebuilds
           path: prebuilds
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
