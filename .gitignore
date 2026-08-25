@@ -101,6 +101,5 @@ typings/
 
 build
 prebuilds
-package-lock.json
 compile_commands.json
 .cache

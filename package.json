@@ -25,18 +25,27 @@
   "engines": {
     "node": ">=18"
   },
+  "overrides": {
+    "diff": "9.0.0",
+    "glob": "13.0.6",
+    "node-gyp": "$node-gyp",
+    "serialize-javascript": "7.1.0",
+    "tar": "7.5.22"
+  },
   "dependencies": {
-    "node-addon-api": "^6.1.0",
-    "node-gyp-build": "^3.9.0"
+    "node-addon-api": "^8.9.2",
+    "node-gyp-build": "^4.8.4"
   },
   "devDependencies": {
-    "chai": "^4.3.10",
-    "eslint": "^7.31.0",
-    "eslint-config-standard": "^16.0.3",
-    "eslint-plugin-import": "^2.23.4",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^5.1.0",
-    "eslint-plugin-standard": "^5.0.0",
-    "mocha": "^11.7.6"
+    "@eslint/js": "^10.0.1",
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "chai": "^6.2.2",
+    "eslint": "^10.9.1",
+    "eslint-plugin-import-x": "^4.17.1",
+    "eslint-plugin-n": "^18.3.0",
+    "eslint-plugin-promise": "^7.3.0",
+    "globals": "^17.11.0",
+    "mocha": "^11.8.0",
+    "node-gyp": "13.0.1"
   }
 }
