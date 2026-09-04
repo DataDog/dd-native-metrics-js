@@ -1,0 +1,49 @@
+name: "Dependabot Automation"
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+
+env:
+  AUTO_MERGE_GROUP: "development-dependencies"
+
+jobs:
+  dependabot-automation:
+    # Do not mint a token when a human reopens or synchronizes a Dependabot PR.
+    if: github.event.pull_request.user.login == 'dependabot[bot]' && github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      pull-requests: read
+    steps:
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # 3.1.0
+      - name: Get GitHub token via Octo STS
+        if: >-
+          steps.metadata.outputs.dependency-group == env.AUTO_MERGE_GROUP &&
+          steps.metadata.outputs.update-type != 'version-update:semver-major'
+        uses: DataDog/dd-octo-sts-action@96a25462dbcb10ebf0bfd6e2ccc917d2ab235b9a # v1.0.4
+        id: octo-sts
+        with:
+          scope: DataDog/dd-native-metrics-js
+          policy: dependabot-automation
+      - name: Approve a PR
+        if: >-
+          steps.metadata.outputs.dependency-group == env.AUTO_MERGE_GROUP &&
+          steps.metadata.outputs.update-type != 'version-update:semver-major'
+        run: gh pr review --approve "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ steps.octo-sts.outputs.token }}
+      - name: Enable auto-merge for Dependabot PRs
+        if: >-
+          steps.metadata.outputs.dependency-group == env.AUTO_MERGE_GROUP &&
+          steps.metadata.outputs.update-type != 'version-update:semver-major'
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ steps.octo-sts.outputs.token }}
