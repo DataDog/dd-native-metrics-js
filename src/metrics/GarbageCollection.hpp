@@ -19,6 +19,7 @@ namespace datadog {
   class GarbageCollection {
     public:
       GarbageCollection();
+      ~GarbageCollection();
 
       void Enable();
       void Disable();
@@ -39,6 +40,10 @@ namespace datadog {
   GarbageCollection::GarbageCollection() {
     start_time_ = uv_hrtime();
     enabled_ = false;
+  }
+
+  GarbageCollection::~GarbageCollection() {
+    Disable();
   }
 
   void before_gc(v8::Isolate* isolate, v8::GCType type, v8::GCCallbackFlags flags, void* data) {
