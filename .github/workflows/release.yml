@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    uses: Datadog/action-prebuildify/.github/workflows/build.yml@53d7646c481ba6c256b4c10ef537682bf86ba958 # main
+    uses: Datadog/action-prebuildify/.github/workflows/build.yml@7e395e41123b38fbc8bbe2b98b1fbaa6d34965be # main
     with:
       target-name: 'metrics'
       package-manager: 'yarn'
