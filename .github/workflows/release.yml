@@ -39,11 +39,45 @@ jobs:
         with:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
-      - run: npm publish
       - id: pkg
         run: |
-          content=`cat ./package.json | tr '\n' ' '`
-          echo "json=$content" >> "$GITHUB_OUTPUT"
-      - run: |
-          git tag v${{ fromJson(steps.pkg.outputs.json).version }}
-          git push https://x-access-token:${{ steps.octo-sts.outputs.token }}@github.com/${{ github.repository }}.git v${{ fromJson(steps.pkg.outputs.json).version }}
+          echo "name=$(node -p 'require("./package.json").name')" >> "$GITHUB_OUTPUT"
+          echo "version=$(node -p 'require("./package.json").version')" >> "$GITHUB_OUTPUT"
+      - id: published
+        env:
+          PACKAGE_NAME: ${{ steps.pkg.outputs.name }}
+          PACKAGE_VERSION: ${{ steps.pkg.outputs.version }}
+        run: |
+          if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version > /dev/null 2>&1; then
+            git_head=$(npm view "$PACKAGE_NAME@$PACKAGE_VERSION" gitHead)
+            if [ -z "$git_head" ]; then
+              echo "::error::Published package has no gitHead metadata"
+              exit 1
+            fi
+
+            echo "value=true" >> "$GITHUB_OUTPUT"
+            echo "git_head=$git_head" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=false" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.published.outputs.value != 'true'
+        run: npm publish
+      - env:
+          RELEASE_TAG: v${{ steps.pkg.outputs.version }}
+          RELEASE_SHA: ${{ steps.published.outputs.git_head || github.sha }}
+          STS_TOKEN: ${{ steps.octo-sts.outputs.token }}
+        run: |
+          remote_sha=$(git ls-remote --tags origin "refs/tags/$RELEASE_TAG" | cut -f1)
+          if [ -n "$remote_sha" ]; then
+            if [ "$remote_sha" != "$RELEASE_SHA" ]; then
+              echo "::error::$RELEASE_TAG points to $remote_sha, expected $RELEASE_SHA"
+              exit 1
+            fi
+
+            echo "$RELEASE_TAG already points to $RELEASE_SHA"
+            exit 0
+          fi
+
+          git fetch --no-tags origin "$RELEASE_SHA"
+          git tag "$RELEASE_TAG" "$RELEASE_SHA"
+          git push "https://x-access-token:$STS_TOKEN@github.com/$GITHUB_REPOSITORY.git" "$RELEASE_TAG"

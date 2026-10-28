@@ -1,12 +1,13 @@
 issuer: https://token.actions.githubusercontent.com
 
-subject: repo:DataDog/dd-native-metrics-js:pull_request
+subject_pattern: repo:DataDog/dd-native-metrics-js:ref:refs/heads/(main|v[0-9]+\.x)
 
 claim_pattern:
   actor: dependabot\[bot\]
-  event_name: pull_request
-  ref: refs/pull/[0-9]+/merge
-  job_workflow_ref: DataDog/dd-native-metrics-js/\.github/workflows/dependabot-automation.yml@refs/pull/[0-9]+/merge
+  event_name: pull_request_target
+  ref: refs/heads/(main|v[0-9]+\.x)
+  job_workflow_ref: >-
+    DataDog/dd-native-metrics-js/\.github/workflows/dependabot-automation.yml@refs/heads/(main|v[0-9]+\.x)
 
 permissions:
   contents: write
