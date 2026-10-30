@@ -16,15 +16,16 @@ describe('metrics', () => {
     })
 
     // NOTE: This test needs to be first!
-    it('should have realistic cpu stats on first stats call', () => {
+    it('should collect cumulative CPU stats on first stats call', () => {
+      const before = process.cpuUsage()
       const { cpu } = nativeMetrics.stats()
-      const { user, system } = process.cpuUsage()
+      const after = process.cpuUsage()
 
-      expect(cpu.user).to.be.greaterThan(user * 0.5)
-      expect(cpu.user).to.be.lessThanOrEqual(user * 1.5)
+      expect(cpu.user).to.be.gte(before.user)
+      expect(cpu.user).to.be.lte(after.user)
 
-      expect(cpu.system).to.be.greaterThan(system * 0.5)
-      expect(cpu.system).to.be.lessThanOrEqual(system * 1.5)
+      expect(cpu.system).to.be.gte(before.system)
+      expect(cpu.system).to.be.lte(after.system)
     })
 
     it('should collect stats', done => {
